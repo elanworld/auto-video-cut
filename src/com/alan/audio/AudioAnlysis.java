@@ -17,13 +17,12 @@ public class AudioAnlysis {
             long frames = audioInputStream.getFrameLength();
             float rate = format.getFrameRate();
             int duration = Math.round(frames / rate);
-            System.out.println(duration);
+            System.out.println(rate);
             AudioFormat.Encoding enc = format.getEncoding();
-            byte [] aub = audioInputStream.readNBytes(100);
+            byte [] aub = audioInputStream.readNBytes(20);
             for (byte b : aub) {
                 System.out.println(b);
             }
-            System.out.println(aub);
         } catch (Exception e) {
             e.printStackTrace();
         }
