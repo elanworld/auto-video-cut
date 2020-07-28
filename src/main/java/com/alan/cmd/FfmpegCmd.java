@@ -1,4 +1,4 @@
-package com.alan.video;
+package com.alan.cmd;
 
 import com.alan.output.Output;
 
