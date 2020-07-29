@@ -3,15 +3,89 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>org.example</groupId>
     <artifactId>auto-video-cut</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <dependency>
-        <groupId>com.baidu.aip</groupId>
-        <artifactId>java-sdk</artifactId>
-        <version>4.12.0</version>
-    </dependency>
 
+    <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+<!--local jar package-->
+    <dependencies>
+<!--        百度语音识别-->
+        <dependency>
+            <groupId>my-group</groupId>
+            <artifactId>my-artfact</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/aip-java-sdk-4.1.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>my-group</groupId>
+            <artifactId>log</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/log4j-1.2.17.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>my-group</groupId>
+            <artifactId>json</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/json-20160810.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>edu.cmu.sphinx</groupId>
+            <artifactId>sphinx4-core</artifactId>
+            <version>5prealpha-SNAPSHOT</version>
+        </dependency>
+<!--        讯飞语音识别-->
+        <dependency>
+            <groupId>com.iflytek.msp.lfasr</groupId>
+            <artifactId>lfasr-sdk</artifactId>
+            <version>3.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/lfasr-sdk-3.0.0.jar</systemPath>
+        </dependency>
+        <!--第三方依赖包-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.67</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5</version>
+        </dependency>
+    </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>14</source>  <!--language level-->
+                    <target>14</target>  <!--java compiler version-->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
