@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 
 //need exit by manual
@@ -32,9 +33,8 @@ public class Lflyasr {
         }
     }
 
-    public HashMap<double[], String> getResult() {
-        HashMap<double[], String> map = new HashMap<double[], String>();
-        ArrayList<Object[]> list = new ArrayList<Object[]>();
+    public LinkedHashMap<double[], String> getResult() {
+        LinkedHashMap<double[], String> map = new LinkedHashMap<double[], String>();
         Message result = lfasrClient.getResult(task);
         String resultData = result.getData();
         Output.print(resultData);
@@ -46,15 +46,12 @@ public class Lflyasr {
             double [] time = {bg,ed};
             String onebest = json.getString("onebest");
             map.put(time,onebest);
-            Object[] data = {(Object)bg,(Object)ed, (Object)onebest};
-            new Output(data[0]);
-            list.add(data);
         }
         new Output(map);
         return map;
     }
 
-    public HashMap<double[], String> loopGetResult() {
+    public LinkedHashMap<double[], String> loopGetResult() {
         boolean ok;
         while (ok = getFinish() != true) {
             try {
@@ -62,7 +59,7 @@ public class Lflyasr {
             } catch (Exception e) {
             }
         }
-        HashMap<double[], String> map = getResult();
+        LinkedHashMap<double[], String> map = getResult();
         return map;
     }
     public void exit() {

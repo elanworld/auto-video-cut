@@ -9,7 +9,8 @@ import com.alan.output.Output;
 import edu.cmu.sphinx.api.Configuration;
 import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.api.StreamSpeechRecognizer;
-//鏈湴璇煶璇嗗埆
+import edu.cmu.sphinx.api.SpeechSourceProvider;
+//本地语音识别
 @Deprecated
 public class Sphinx {
     public static void main(String[] args) throws Exception {
@@ -21,7 +22,8 @@ public class Sphinx {
         configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 
         StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(configuration);
-        InputStream stream = new FileInputStream(new File("F:\\Alan\\Videos\\鐢靛奖\\11.wav"));
+        InputStream stream = new FileInputStream(new File("F:\\Alan\\Videos\\电影\\out_举起手来 HD1280高清国语中字.mp4.wav"));
+
 
         recognizer.startRecognition(stream);
         SpeechResult result;
@@ -30,7 +32,6 @@ public class Sphinx {
         while ((result = recognizer.getResult()) != null) {
             System.out.format("Hypothesis: %s\n", result.getHypothesis());
             new Output(result.getResult());
-            resultList.add(result.getHypothesis());
 
         }
         recognizer.stopRecognition();
