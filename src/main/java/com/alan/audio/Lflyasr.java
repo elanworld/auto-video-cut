@@ -6,12 +6,9 @@ import com.iflytek.msp.lfasr.model.Message;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 
-//need exit by manual
 public class Lflyasr {
     private static final String APP_ID = "5f1e9675";
     private static final String SECRET_KEY = "b0d4a010d2982a1072f30f79def58c84";
@@ -43,9 +40,9 @@ public class Lflyasr {
             JSONObject json = (JSONObject) object;
             double bg = json.getDouble("bg");
             double ed = json.getDouble("ed");
-            double [] time = {bg,ed};
+            double[] time = {bg, ed};
             String onebest = json.getString("onebest");
-            map.put(time,onebest);
+            map.put(time, onebest);
         }
         new Output(map);
         return map;
@@ -62,6 +59,8 @@ public class Lflyasr {
         LinkedHashMap<double[], String> map = getResult();
         return map;
     }
+
+    //need exit by manual
     public void exit() {
         System.exit(0);
     }

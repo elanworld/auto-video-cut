@@ -1,12 +1,18 @@
 package com.alan.audio;
 
+import com.alan.cmd.RunCmd;
 import com.alan.output.Output;
+import com.alan.util.StringConv;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioInputStream;
+import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AudioAnlysis {
     private ArrayList<Integer> audioFrames = new ArrayList<Integer>();
@@ -41,7 +47,30 @@ public class AudioAnlysis {
     public ArrayList<Float> getFramesStamp() {
         //todo reduce Frames memory using
         ArrayList<Float> timeList = new ArrayList<>();
-        ArrayList<Float> floats = (ArrayList<Float>) timeList.subList(44,99);
+        ArrayList<Float> floats = (ArrayList<Float>) timeList.subList(44, 99);
         return floats;
+    }
+
+    public float loadByFFmpeg(String file) {
+        String cmd = String.format("ffmpeg -i \"%s\"", file);
+        RunCmd runCmd = new RunCmd(cmd);
+        ArrayList<String> outError = runCmd.outError;
+        String line = StringConv.findLine(outError, "Duration");
+        Output.print(line);
+        String pattern = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
+        Pattern r = Pattern.compile(pattern);
+        Matcher matcher = r.matcher(line);
+        try {
+            if (matcher.find()) {
+                int h = Integer.decode(matcher.group(1));
+                int m = Integer.decode(matcher.group(2));
+                int s = Integer.decode(matcher.group(3));
+                int fs = Integer.decode(matcher.group(4));
+                duration = h * 3600 + m * 60 + s + fs / 60;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return duration;
     }
 }
