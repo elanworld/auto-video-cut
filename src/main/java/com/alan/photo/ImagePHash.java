@@ -21,23 +21,23 @@ public class ImagePHash {
     private int smallerSize = 8;
 
     public ImagePHash() {
-        initCoefficients();
+        init();
     }
 
     public ImagePHash(int size, int smallerSize) {
         this.size = size;
         this.smallerSize = smallerSize;
 
-        initCoefficients();
+        init();
     }
 
-    public int compareImg(BufferedImage bImg1, BufferedImage bImg2) {
+    public float compareImg(BufferedImage bImg1, BufferedImage bImg2) {
         String hash1 = getHash(bImg1);
         String hash2 = getHash(bImg2);
         return distance(hash1, hash2);
     }
 
-    public int compareImg(String img1, String img2) {
+    public float compareImg(String img1, String img2) {
         try {
             String hash1 = getHash(ImageIO.read(new File(img1)));
             String hash2 = getHash(ImageIO.read(new File(img2)));
@@ -48,14 +48,15 @@ public class ImagePHash {
         return -1;
     }
 
-    public int distance(String s1, String s2) {
+    public float distance(String s1, String s2) {
         int counter = 0;
         for (int k = 0; k < s1.length(); k++) {
             if (s1.charAt(k) != s2.charAt(k)) {
                 counter++;
             }
         }
-        return counter;
+        float like =  counter / (float) (smallerSize * smallerSize);
+        return like;
     }
 
 
@@ -159,7 +160,7 @@ public class ImagePHash {
 
     private double[] c;
 
-    private void initCoefficients() {
+    private void init() {
         c = new double[size];
 
         for (int i = 1; i < size; i++) {
@@ -192,7 +193,7 @@ public class ImagePHash {
         ImagePHash p = new ImagePHash();
         String file1 = "F:\\Alan\\Pictures\\WallPaper\\dynamic_desktop\\Catalina\\Catalina Day£­1.jpg";
         String file2 = "F:\\Alan\\Pictures\\WallPaper\\dynamic_desktop\\Catalina\\Catalina Day£­5.jpg";
-        int i = p.compareImg(file1, file2);
+        float i = p.compareImg(file1, file2);
         new Output(i);
 
 

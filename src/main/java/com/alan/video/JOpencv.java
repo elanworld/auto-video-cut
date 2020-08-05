@@ -2,10 +2,13 @@ package com.alan.video;
 
 import com.alan.output.Output;
 import com.alan.photo.ImagePHash;
+
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.highgui.HighGui;
 import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 import java.awt.image.BufferedImage;
 
@@ -13,15 +16,20 @@ public class JOpencv {
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
+
     public JOpencv(String file) {
-        VideoCapture videoCapture = new VideoCapture(file);
+        Mat mat = Mat.eye( 3, 3, CvType.CV_8UC1 );
+        System.out.println( "mat = " + mat.dump() );
+        VideoCapture videoCapture = new VideoCapture();
         videoCapture.open(file);
         boolean opened = videoCapture.isOpened();
         new Output(opened);
         ImagePHash pHash = new ImagePHash();
-        for (int i=0;i<50;i++) {
-            new Output("frame:"+i);
-            Mat mat =new Mat();
+        for (int i = 0; i < 50; i++) {
+            new Output("frame:" + i);
+
+
+            mat = new Mat();
             Mat mat2 = new Mat();
             videoCapture.retrieve(mat);
             videoCapture.read(mat2);
