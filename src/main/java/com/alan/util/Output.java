@@ -1,4 +1,5 @@
-package com.alan.output;
+package com.alan.util;
+
 
 public class Output {
     public <E> Output(E out) {

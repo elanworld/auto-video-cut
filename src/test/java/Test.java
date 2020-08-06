@@ -1,5 +1,4 @@
 import com.alan.cmd.RunCmd;
-import com.alan.output.Output;
 
 public class Test {
 

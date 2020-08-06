@@ -1,16 +1,12 @@
 package com.alan.video;
 
-import com.alan.output.Output;
+import com.alan.util.Output;
 import com.alan.photo.ImagePHash;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.highgui.HighGui;
 import org.opencv.videoio.VideoCapture;
-import org.opencv.videoio.Videoio;
-
-import java.awt.image.BufferedImage;
 
 public class JOpencv {
     static {

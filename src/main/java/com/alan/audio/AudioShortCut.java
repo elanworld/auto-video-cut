@@ -2,13 +2,10 @@ package com.alan.audio;
 
 import com.alan.cmd.FFmpegCmd;
 import com.alan.cmd.RunCmd;
-import com.alan.output.Output;
-import com.alan.util.StringConv;
+import com.alan.util.Output;
+import com.alan.util.StringContainer;
 
 import java.io.File;
-import java.lang.reflect.Array;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class AudioShortCut {
@@ -20,7 +17,7 @@ public class AudioShortCut {
         if (!outDir.exists()) {
             outDir.mkdir();
         }
-        ArrayList<String> strings = StringConv.dictoryList(dir);
+        ArrayList<String> strings = StringContainer.dictoryList(dir);
         for (String file : strings) {
             Output.print(file);
             String audio = file;
@@ -32,7 +29,7 @@ public class AudioShortCut {
                 start = (duration - 30) / 2;
             }
             FFmpegCmd fFmpegCmd = new FFmpegCmd();
-            String outFile = new File(outDir.toString(), StringConv.pathSplit(audio)[3]).toString();
+            String outFile = new File(outDir.toString(), StringContainer.pathSplit(audio)[3]).toString();
             if (new File(outFile).exists()) {
                 continue;
             };

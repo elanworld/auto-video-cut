@@ -1,20 +1,18 @@
 package com.alan;
 
-import com.alan.audio.Lflyasr;
 import com.alan.cmd.FFmpegCmd;
 import com.alan.cmd.RunCmd;
-import com.alan.output.Output;
-import com.alan.util.StringConv;
+import com.alan.util.Output;
+import com.alan.util.StringContainer;
 import com.alan.video.CvContainer;
-import org.bytedeco.opencv.presets.opencv_core;
 
 public class Main {
 
     public static void main(String[] args) throws Exception/**/{
         // write your cod1e here
-        String file = "F:\\Alan\\Videos\\我的视频\\剪辑\\知乎视频.mp4";
-        CvContainer cvContainer = new CvContainer();
-        cvContainer.grabFrame(file);
-
+        String file = "F:\\Alan\\Videos\\我的视频\\NEXUS BLITZ PENTAKILL 2020.mp4";
+        String cutSize = new FFmpegCmd().cutSize(file, StringContainer.getOutPath(file), 400, 550, (1280-400)/2, 0);
+        new RunCmd(cutSize,1000, false);
+        Output.print("finish");
     }
 }

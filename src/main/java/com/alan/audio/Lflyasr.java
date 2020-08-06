@@ -1,6 +1,6 @@
 package com.alan.audio;
 
-import com.alan.output.Output;
+import com.alan.util.Output;
 import com.iflytek.msp.lfasr.LfasrClient;
 import com.iflytek.msp.lfasr.model.Message;
 import org.json.JSONArray;

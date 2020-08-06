@@ -6,8 +6,6 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import com.alan.output.Output;
-
 public class Graph {
     public Graph(ArrayList<Integer> graphNum) {
         new Frame(graphNum);

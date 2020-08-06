@@ -1,6 +1,6 @@
 package com.alan.cmd;
 
-import com.alan.output.Output;
+import com.alan.util.Output;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -19,8 +19,9 @@ public class RunCmd {
         runCmd(command);
     }
 
-    public RunCmd(String command, boolean wait) {
+    public RunCmd(String command,int timeout, boolean wait) {
         stop = wait;
+        this.timeout = timeout;
         runCmd(command);
     }
 

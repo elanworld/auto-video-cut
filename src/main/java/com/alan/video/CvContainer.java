@@ -1,20 +1,14 @@
 package com.alan.video;
 
-import com.alan.output.Output;
+import com.alan.util.Output;
 import com.alan.photo.ImagePHash;
-import com.alan.util.StringConv;
+import com.alan.util.StringContainer;
 import org.bytedeco.javacv.*;
-import org.bytedeco.opencv.opencv_core.IplImage;
 import org.bytedeco.opencv.opencv_core.Mat;
 import org.bytedeco.opencv.opencv_videoio.VideoCapture;
-import org.bytedeco.opencv.presets.opencv_core;
 
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
@@ -75,7 +69,7 @@ public class CvContainer {
      * @param file：视频路径
      */
     public String getWriteName(String file) throws IOException {
-        String[] strings = StringConv.pathSplit(file);
+        String[] strings = StringContainer.pathSplit(file);
         Path name = Path.of(strings[0], strings[1], strings[1] + String.valueOf(writeNum) + strings[2]);
         if (!Files.exists(name.getParent())) {
             Files.createDirectory(name.getParent());

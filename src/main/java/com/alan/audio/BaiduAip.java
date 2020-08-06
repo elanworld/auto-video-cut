@@ -1,6 +1,6 @@
 package com.alan.audio;
 
-import com.alan.output.Output;
+import com.alan.util.Output;
 import com.baidu.aip.speech.AipSpeech;
 import org.json.JSONObject;
 

@@ -1,16 +1,14 @@
 package com.alan.audio;
 
 import com.alan.cmd.RunCmd;
-import com.alan.output.Output;
-import com.alan.util.StringConv;
+import com.alan.util.Output;
+import com.alan.util.StringContainer;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioInputStream;
-import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,7 +53,7 @@ public class AudioAnlysis {
         String cmd = String.format("ffmpeg -i \"%s\"", file);
         RunCmd runCmd = new RunCmd(cmd);
         ArrayList<String> outError = runCmd.outError;
-        String line = StringConv.findLine(outError, "Duration");
+        String line = StringContainer.findLine(outError, "Duration");
         Output.print(line);
         String pattern = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
         Pattern r = Pattern.compile(pattern);

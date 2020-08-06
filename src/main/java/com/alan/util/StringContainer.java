@@ -1,20 +1,17 @@
 package com.alan.util;
 
-import com.alan.output.Output;
-
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.function.BiPredicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public class StringConv {
+/**
+ * @apiNote : just using package of jdk
+ */
+public class StringContainer {
     public static String[] pathSplit(String path) {
         File file = new File(path);
         String name = file.getName();
@@ -22,15 +19,13 @@ public class StringConv {
         String[] split = name.split("\\.");
         String basename = split[0];
         String ext = "." + split[1];
-        String[] pathSplit = {parent, basename, ext , name};
-        return pathSplit;
+        String[] paths = {parent, basename, ext , name};
+        return paths;
     }
 
-    public String getOutPath(String inputPath) {
-        Path path = Paths.get(inputPath);
-        Path parent = path.getParent();
-        Path fileName = path.getFileName();
-        Path outPath = Paths.get(parent.toString(), "out_" + fileName.toString());
+    public static String getOutPath(String inputPath) {
+        String[] paths = pathSplit(inputPath);
+        Path outPath = Paths.get(paths[0], paths[1] + "_OUT" + paths[2]);
         return outPath.toString();
     }
 
@@ -38,7 +33,7 @@ public class StringConv {
         String catLine = "";
         regex = ".*" + regex + ".*";
         for (String line : lines) {
-            new Output(line);
+            Output.print(line);
             boolean matches = line.matches(regex);
             if (matches) {
                 catLine = line;
@@ -65,6 +60,3 @@ public class StringConv {
     }
 }
 
-class MyException extends Exception {
-
-}
