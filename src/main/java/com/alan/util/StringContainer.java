@@ -30,10 +30,9 @@ public class StringContainer {
     }
 
     public static String findLine(ArrayList<String> lines, String regex) {
-        String catLine = "";
+        String catLine = null;
         regex = ".*" + regex + ".*";
         for (String line : lines) {
-            Output.print(line);
             boolean matches = line.matches(regex);
             if (matches) {
                 catLine = line;
@@ -57,6 +56,14 @@ public class StringContainer {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public static boolean regexFiles(String dir, String regex) {
+        boolean got = false;
+        ArrayList<String> strings = dictoryList(dir);
+        String line = findLine(strings, regex);
+        if (line != null)  got = true;
+        return got;
     }
 }
 

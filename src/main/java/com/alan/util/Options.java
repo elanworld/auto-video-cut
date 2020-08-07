@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class Options {
     public static void sleep(int second) {
         try {
-            com.alan.util.Output.print("wait for: " + String.valueOf(second));
+            com.alan.util.Output.print("wait for(seconds): " + String.valueOf(second));
             TimeUnit.SECONDS.sleep(second);
         } catch (Exception e) {
             e.printStackTrace();
