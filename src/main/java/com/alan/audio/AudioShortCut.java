@@ -1,7 +1,6 @@
 package com.alan.audio;
 
 import com.alan.cmd.FFmpegCmd;
-import com.alan.cmd.RunCmd;
 import com.alan.util.Output;
 import com.alan.util.StringContainer;
 
@@ -33,8 +32,7 @@ public class AudioShortCut {
             if (new File(outFile).exists()) {
                 continue;
             };
-            String cmd = fFmpegCmd.cutAudio(audio, outFile, start, start + 30);
-            new RunCmd(cmd);
+            fFmpegCmd.setInput(audio).setOutput(outFile).setTime(start, start + 30).run();
         }
     }
 }

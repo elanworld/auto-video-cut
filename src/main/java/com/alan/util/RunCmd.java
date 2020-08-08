@@ -1,6 +1,4 @@
-package com.alan.cmd;
-
-import com.alan.util.Output;
+package com.alan.util;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-import com.alan.cmd.RunCmd;
+import com.alan.util.RunCmd;
 
 public class Test {
 

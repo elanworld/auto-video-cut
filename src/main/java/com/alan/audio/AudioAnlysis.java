@@ -1,6 +1,6 @@
 package com.alan.audio;
 
-import com.alan.cmd.RunCmd;
+import com.alan.util.RunCmd;
 import com.alan.util.Output;
 import com.alan.util.StringContainer;
 
