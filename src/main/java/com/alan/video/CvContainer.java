@@ -29,17 +29,19 @@ public class CvContainer {
         fFmpegFrameGrabber.start();
         rate = (float) fFmpegFrameGrabber.getVideoFrameRate();
         java2DFrameConverter = new Java2DFrameConverter();
-        recorder();
-        Frame frame = fFmpegFrameGrabber.grabKeyFrame();
+        int lengthInFrames = fFmpegFrameGrabber.getLengthInFrames();
+
 
         float duration = 0;
-        while (frame != null) {
-            fFmpegFrameRecorder.record(frame);
-            BufferedImage lastImage = java2DFrameConverter.getBufferedImage(frame);
-            frame = fFmpegFrameGrabber.grabImage();
-            BufferedImage currentImage = java2DFrameConverter.getBufferedImage(frame);
+        for (int i = 0; i < lengthInFrames; i+=2) {
+            Frame lastFrame = fFmpegFrameGrabber.grabImage();
+            Frame currentFrame = fFmpegFrameGrabber.grabImage();
+            if (lastFrame.equals(currentFrame)) {
+                Output.print("same " + lastFrame.imageWidth);
+            }
+            BufferedImage lastImage = java2DFrameConverter.getBufferedImage(lastFrame);
+            BufferedImage currentImage = java2DFrameConverter.getBufferedImage(currentFrame);
             float like = imagePHash.compareImg(lastImage, currentImage);
-            Output.print(frame.imageWidth);
             Output.print(like);
             duration += 1 / rate;
             if (like > 0.38 && duration > 5) {
@@ -51,7 +53,7 @@ public class CvContainer {
         fFmpegFrameRecorder.close();
     }
 
-    public void recorder() throws Exception{
+    private void recorder() throws Exception{
         fFmpegFrameRecorder = new FFmpegFrameRecorder(
                 getWriteName(file),
                 fFmpegFrameGrabber.getImageWidth(),
@@ -65,10 +67,9 @@ public class CvContainer {
 
     /**
      * 自动生成新文件名
-     *
      * @param file：视频路径
      */
-    public String getWriteName(String file) throws IOException {
+    private String getWriteName(String file) throws IOException {
         String[] strings = StringContainer.pathSplit(file);
         Path name = Path.of(strings[0], strings[1], strings[1] + String.valueOf(writeNum) + strings[2]);
         if (!Files.exists(name.getParent())) {
@@ -87,7 +88,7 @@ public class CvContainer {
         Output.print(mat.rows());
     }
 
-    public void finalize() {
+    protected void finalize() {
         Output.print(String.format("used time:%s", new Date().getTime() - start));
     }
 }

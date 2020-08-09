@@ -1,7 +1,6 @@
 package com.alan.cmd;
 
 import com.alan.util.CaptionException;
-import com.alan.util.Output;
 import com.alan.util.RunCmd;
 
 import java.util.*;
@@ -12,6 +11,7 @@ public class FFmpegCmd {
     ArrayList<String> cmdList;
     LinkedHashMap<String, String> cmdMap = new LinkedHashMap<>();
     String finalCmdLine;
+    ArrayList<String> finalCmds = new ArrayList<>();
 
     public FFmpegCmd() {
         cmdList = new ArrayList<String>(Arrays.asList("ffmpeg", "overwrite", "time_off", "input", "crop", "dcode", "output"));
@@ -35,7 +35,12 @@ public class FFmpegCmd {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        finalCmds.add(finalCmdLine);
         new RunCmd(finalCmdLine, 1000, true);
+    }
+
+    public ArrayList<String> getFinalCmds() {
+        return finalCmds;
     }
 
     public FFmpegCmd setInput(String input) {
