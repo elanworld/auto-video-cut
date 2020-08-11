@@ -10,27 +10,27 @@ public class RunCmd {
     StreamOut streamOut;
     StreamOut streamError;
     Process p;
-    public boolean stop = true;
-    public int timeout = 60;
+    boolean wait = true;
+    int timeout = 60;
 
     public RunCmd(String command) {
-        runCmd(command);
+        run(command);
     }
 
-    public RunCmd(String command,int timeout, boolean wait) {
-        stop = wait;
+    public RunCmd(String command, int timeout, boolean wait) {
+        this.wait = wait;
         this.timeout = timeout;
-        runCmd(command);
+        run(command);
     }
 
-    public void runCmd(String command) {
+    public void run(String command) {
         try {
             p = Runtime.getRuntime().exec(command);
             new Output("runing cmd: " + command);
             new KillCmd(p, timeout).start();
             streamOut = new StreamOut(p.getInputStream());
             streamError = new StreamOut(p.getErrorStream());
-            if (stop) {
+            if (wait) {
                 streamOut.getResul();
                 streamError.getResul();
             }
@@ -64,7 +64,7 @@ class StreamOut extends Thread {
     public ArrayList<String> getResul() {
         try {
             while (true) {
-                Thread.sleep(100);
+                Thread.sleep(1000);
                 if (!t.isAlive()) {
                     break;
                 }

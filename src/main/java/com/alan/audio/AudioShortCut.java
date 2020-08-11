@@ -20,9 +20,9 @@ public class AudioShortCut {
         for (String file : strings) {
             Output.print(file);
             String audio = file;
-            AudioAnlysis audioAnlysis = new AudioAnlysis();
-            audioAnlysis.loadByFFmpeg(audio);
-            float duration = audioAnlysis.duration;
+            AudioContainer audioContainer = new AudioContainer();
+            audioContainer.loadByFFmpeg(audio);
+            float duration = audioContainer.duration;
             float start = 0;
             if (duration > 30) {
                 start = (duration - 30) / 2;

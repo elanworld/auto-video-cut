@@ -23,10 +23,25 @@ public class StringContainer {
         return paths;
     }
 
-    public static String getOutPath(String inputPath) {
+    public static String outFile(String inputPath) {
         String[] paths = pathSplit(inputPath);
-        Path outPath = Paths.get(paths[0], paths[1] + "_OUT" + paths[2]);
+        Path outPath = Paths.get(paths[0], paths[1] + "_out" + paths[2]);
         return outPath.toString();
+    }
+
+    public static String outDirFile(String inputPath, int fileNum) {
+        String[] paths = pathSplit(inputPath);
+        Path outPath = Paths.get(paths[0], "out", paths[1], paths[1] + "_" + String.valueOf(fileNum) + paths[2]);
+        Path parent = outPath.getParent();
+        mkdirOutPath(parent);
+        return outPath.toString();
+    }
+
+    private static void mkdirOutPath(Path path) {
+        if (!Files.exists(path)) {
+            File file = new File(path.toString());
+            file.mkdirs();
+        }
     }
 
     public static String findLine(ArrayList<String> lines, String regex) {
