@@ -3,9 +3,9 @@ package com.alan.video;
 import com.alan.ai.AiBaseTarget;
 import com.alan.cmd.FFmpegCmd;
 import com.alan.photo.ImagePHash;
+import com.alan.util.FilesBox;
 import com.alan.util.Output;
 
-import com.alan.util.StringContainer;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
@@ -98,7 +98,7 @@ public class OpenCvBox {
      * @param file£ºÊÓÆµÂ·¾¶
      */
     private String getWriteName(String file) {
-        String name = StringContainer.outDirFile(file, writeNum);
+        String name = FilesBox.outDirFile(file, writeNum);
         Output.print(name);
         writeNum += 1;
         return name;

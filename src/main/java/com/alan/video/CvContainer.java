@@ -1,5 +1,6 @@
 package com.alan.video;
 
+import com.alan.util.FilesBox;
 import com.alan.util.Output;
 import com.alan.photo.ImagePHash;
 import com.alan.util.StringContainer;
@@ -70,7 +71,7 @@ public class CvContainer {
      * @param file：视频路径
      */
     private String getWriteName(String file) throws IOException {
-        String[] strings = StringContainer.pathSplit(file);
+        String[] strings = FilesBox.pathSplit(file);
         Path name = Path.of(strings[0], strings[1], strings[1] + String.valueOf(writeNum) + strings[2]);
         if (!Files.exists(name.getParent())) {
             Files.createDirectory(name.getParent());
@@ -88,6 +89,7 @@ public class CvContainer {
         Output.print(mat.rows());
     }
 
+    @Deprecated
     protected void finalize() {
         Output.print(String.format("used time:%s", new Date().getTime() - start));
     }

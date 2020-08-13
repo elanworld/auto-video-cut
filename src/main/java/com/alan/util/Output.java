@@ -5,7 +5,7 @@ public class Output {
     private static boolean show = true;
 
     public <E> Output(E out) {
-        if (true) {
+        if (show) {
             System.out.println(out);
         }
     }
