@@ -30,8 +30,8 @@ public class OpenCvBox {
 
     //need to defile
     double splitHeight = 0.2;
-    double smarll = 3;
-    double big = 8;
+    double smarll = 15;
+    double big = 35;
 
     public OpenCvBox(String file) {
         ImagePHash imagePHash = new ImagePHash();

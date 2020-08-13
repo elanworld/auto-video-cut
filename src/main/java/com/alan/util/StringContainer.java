@@ -12,6 +12,9 @@ import java.util.stream.Stream;
  * @apiNote : just using package of jdk
  */
 public class StringContainer {
+    static boolean dirListWalk = false;
+    static String dirListFilter = "";
+
     public static String[] pathSplit(String path) {
         File file = new File(path);
         String name = file.getName();
@@ -19,7 +22,7 @@ public class StringContainer {
         String[] split = name.split("\\.");
         String basename = split[0];
         String ext = "." + split[1];
-        String[] paths = {parent, basename, ext , name};
+        String[] paths = {parent, basename, ext, name};
         return paths;
     }
 
@@ -60,24 +63,42 @@ public class StringContainer {
         ArrayList<String> list = new ArrayList<String>();
         Path path = Path.of(dir);
         try {
-            Stream<Path> pathStream = Files.list(path);
+            Stream<Path> pathStream;
+            if (dirListWalk) {
+                pathStream = Files.walk(path);
+            } else {
+                pathStream = Files.list(path);
+            }
             Object[] objects = pathStream.toArray();
             for (Object object : objects) {
                 String fileObject = object.toString();
                 if (new File(fileObject).isFile())
-                    list.add(object.toString());
+                    if (fileObject.matches(".*" + dirListFilter + ".*"))
+                        list.add(object.toString());
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return list;
     }
 
+    public static ArrayList<String> dictoryWalk(String dir) {
+        dirListWalk = true;
+        return dictoryList(dir);
+    }
+
+    public static ArrayList<String> dictoryListFilter(String dir, String filter, boolean walk) {
+        dirListWalk = walk;
+        dirListFilter = filter;
+        return dictoryList(dir);
+    }
+
+
     public static boolean regexFiles(String dir, String regex) {
         boolean got = false;
         ArrayList<String> strings = dictoryList(dir);
         String line = findLine(strings, regex);
-        if (line != null)  got = true;
+        if (line != null) got = true;
         return got;
     }
 }
