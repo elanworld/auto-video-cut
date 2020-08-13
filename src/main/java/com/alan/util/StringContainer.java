@@ -1,5 +1,8 @@
 package com.alan.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
@@ -24,6 +27,28 @@ public class StringContainer {
         String line = findLine(strings, regex);
         if (line != null) got = true;
         return got;
+    }
+
+    public static String input() {
+        String s = null;
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+            s = bufferedReader.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return s;
+    }
+
+    public static int inputInterger() {
+        while (true) {
+            String input = input();
+            Output.print(input);
+            if (input.matches("(\\d+)")) {
+                return Integer.valueOf(input);
+            }
+
+        }
     }
 }
 

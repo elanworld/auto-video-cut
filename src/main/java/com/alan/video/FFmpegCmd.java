@@ -36,7 +36,7 @@ public class FFmpegCmd {
             e.printStackTrace();
         }
         finalCmds.add(finalCmdLine);
-        new RunCmd(finalCmdLine, 1000, true);
+        new RunCmd(finalCmdLine, 1000, true, false);
     }
 
     public ArrayList<String> getFinalCmds() {

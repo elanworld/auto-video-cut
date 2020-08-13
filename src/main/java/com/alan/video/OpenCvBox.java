@@ -29,7 +29,7 @@ public class OpenCvBox {
     Size frameSize = new Size();
 
     //need to defile
-    double splitHeight = 0.2;
+    double splitHeight = 0.3;
     double smarll = 15;
     double big = 35;
 
@@ -44,10 +44,9 @@ public class OpenCvBox {
         frameSize.width = videoCapture.get(Videoio.CAP_PROP_FRAME_WIDTH);
         frameSize.height = videoCapture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
 
-        AiBaseTarget ai = new AiBaseTarget(splitHeight, big - smarll, (big - smarll) / 2);
+        AiBaseTarget ai = new AiBaseTarget(splitHeight, big - smarll, (big + smarll) / 2, false);
 
-        FFmpegCmd fFmpegCmd = new FFmpegCmd();
-        fFmpegCmd.setInput(file);
+        FFmpegCmd fFmpegCmd = new FFmpegCmd().setInput(file);
         Mat mat = new Mat();
         String lastHash;
         String currentHash = null;
@@ -60,7 +59,7 @@ public class OpenCvBox {
             float like = -1;
             try {
                 currentHash = imagePHash.getHash(mat2BufferedImage(mat));
-                if (i == 0) {
+                if (lastHash == null) {
                     continue;
                 }
                 like = imagePHash.distance(lastHash, currentHash);
@@ -71,13 +70,12 @@ public class OpenCvBox {
             double clipDuration = (end - start) / fps;
             if (like > splitHeight && clipDuration > smarll || clipDuration > big) {
                 fFmpegCmd.setOutput(getWriteName(file)).
-                        setTime((float) ((double) start / fps), (float) ((double) end / fps)).setDcodeCopy().run();
+                        setTime((float) ((double) start / fps), (float) ((double) end / fps)).run();
                 start = end;
                 splitHeight = ai.input(clipDuration);
                 Output.print("now splitHeight:" + splitHeight);
             }
         }
-        Output.print(fFmpegCmd.getFinalCmds());
     }
 
     public void writeContainer(String file) {
