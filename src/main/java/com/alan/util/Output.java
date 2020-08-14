@@ -10,9 +10,12 @@ public class Output {
         }
     }
 
-    public static <E> void print(E out) {
+    public static <E> void print(E... objects) {
         if (show) {
-            System.out.println(out);
+            for (E object : objects) {
+                System.out.print(object + " ");
+            }
+            System.out.println();
         }
     }
 

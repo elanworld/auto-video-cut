@@ -67,6 +67,9 @@ public class OpenCvBox {
                 e.printStackTrace();
                 continue;
             }
+
+            Output.print(like, currentHash, lastHash);
+
             double clipDuration = (end - start) / fps;
             if (like > splitHeight && clipDuration > smarll || clipDuration > big) {
                 fFmpegCmd.setOutput(getWriteName(file)).

@@ -55,7 +55,7 @@ public class ImagePHash {
                 counter++;
             }
         }
-        float like =  counter / (float) (smallerSize * smallerSize);
+        float like = (float) counter / (float) (smallerSize * smallerSize);
         return like;
     }
 
