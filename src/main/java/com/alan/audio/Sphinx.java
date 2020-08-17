@@ -9,6 +9,7 @@ import com.alan.util.Output;
 import edu.cmu.sphinx.api.Configuration;
 import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.api.StreamSpeechRecognizer;
+import edu.cmu.sphinx.result.WordResult;
 
 //本地语音识别
 @Deprecated
@@ -21,20 +22,26 @@ public class Sphinx {
         configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
         configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 
-        StreamSpeechRecognizer StreamSpeechRecognizer = new StreamSpeechRecognizer(configuration);
-        InputStream stream = new FileInputStream(new File("F:\\Alan\\Videos\\电影\\out_举起手来 HD1280高清国语中字.mp4.wav"));
+        StreamSpeechRecognizer streamSpeechRecognizer = new StreamSpeechRecognizer(configuration);
+        InputStream stream = new FileInputStream(new File("F:\\Alan\\Videos\\电影\\speak.wav"));
 
 
-        StreamSpeechRecognizer.startRecognition(stream);
+        streamSpeechRecognizer.startRecognition(stream);
         SpeechResult result;
         ArrayList<String> resultList = new ArrayList<String>();
+        Output.print(stream.available());
 
-        while ((result = StreamSpeechRecognizer.getResult()) != null) {
+        while ((result = streamSpeechRecognizer.getResult()) != null) {
             System.out.format("Hypothesis: %s\n", result.getHypothesis());
-            new Output(result.getResult());
+            for ( WordResult word :result.getWords()) {
+                String w = word.getWord().toString();
+                long start = word.getTimeFrame().getStart();
+                Output.print(w,start);
+                resultList.add(w);
+            }
 
         }
-        StreamSpeechRecognizer.stopRecognition();
+        streamSpeechRecognizer.stopRecognition();
         Output.print(resultList);
     }
 

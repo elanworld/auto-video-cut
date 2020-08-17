@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class RunCmd {
-    public ArrayList<String> output = new ArrayList<String>();
-    public ArrayList<String> outError = new ArrayList<String>();
+    ArrayList<String> output = new ArrayList<String>();
+    ArrayList<String> outError = new ArrayList<String>();
     StreamOut streamOut;
     StreamOut streamError;
     Process p;
     boolean wait = true;
     int timeout = 60;
-    boolean print = false;
+    boolean print = true;
 
     public RunCmd(String command) {
         run(command);

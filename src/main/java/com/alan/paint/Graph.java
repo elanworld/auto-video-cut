@@ -7,15 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class Graph {
-    public static void main(String[] args) {
-        ArrayList<Integer> list = new ArrayList<>(Arrays.asList(23,23,45,54,54,545,4,545,5,5,4,548,784,654,64,65,46,4));
-        FrameBox frameBox = new FrameBox(list);
-    }
-}
 
-class FrameBox extends JFrame {
-    public FrameBox(ArrayList<Integer> graphNum) {
+public class Graph extends JFrame {
+    public Graph(ArrayList<Integer> graphNum) {
+        super();
         setVisible(true);
         setSize(500, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

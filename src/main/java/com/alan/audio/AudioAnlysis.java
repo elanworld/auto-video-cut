@@ -129,12 +129,12 @@ public class AudioAnlysis {
         String file = "F:\\Alan\\Videos\\µÁ”∞\\speak.wav";
         AudioContainer audioContainer = new AudioContainer();
         audioContainer.loadAudio(file);
-        ArrayList<Integer> audioFrames = audioContainer.getAudioFrames();
+        ArrayList<Byte> audioFrames = audioContainer.getAudioFrames();
         ArrayList<Double> audioTime = audioContainer.getAudioTime();
 
         AudioAnlysis anlysis = new AudioAnlysis();
-        ArrayList<Double> speakDuration = anlysis.getSpeakDuration(audioFrames, audioTime);
-        Output.print(speakDuration);
+        // ArrayList<Double> speakDuration = anlysis.getSpeakDuration(audioFrames, audioTime);
+        // Output.print(speakDuration);
 
     }
 }

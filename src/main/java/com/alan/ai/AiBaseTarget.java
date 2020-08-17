@@ -1,5 +1,10 @@
 package com.alan.ai;
 
+import com.alan.util.Output;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class AiBaseTarget {
     //max chage output number when input diffrence is max
     double growth = 0.1;
@@ -7,6 +12,10 @@ public class AiBaseTarget {
     double inputTarget;
     double distance;
     boolean positive;
+
+    //show data
+    ArrayList<Double> inputData = new ArrayList<>();
+    ArrayList<Double> targetData = new ArrayList<>();
 
     /**
      * set ai param
@@ -33,10 +42,25 @@ public class AiBaseTarget {
         } else {
             target -= gap;
         }
+        inputData.add(currentInput);
+        targetData.add(target);
         return target;
     }
 
     public double getTarget() {
         return target;
+    }
+
+    public ArrayList<Double> getInputData() {
+        return inputData;
+    }
+
+    public ArrayList<Double> getTargetData() {
+        return targetData;
+    }
+
+    @Override
+    public String toString() {
+        return targetData + "\n" + inputData;
     }
 }

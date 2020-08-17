@@ -187,15 +187,4 @@ public class ImagePHash {
         }
         return F;
     }
-
-    public static void main(String[] args) {
-
-        ImagePHash p = new ImagePHash();
-        String file1 = "F:\\Alan\\Pictures\\WallPaper\\dynamic_desktop\\Catalina\\Catalina Day£­1.jpg";
-        String file2 = "F:\\Alan\\Pictures\\WallPaper\\dynamic_desktop\\Catalina\\Catalina Day£­5.jpg";
-        float i = p.compareImg(file1, file2);
-        new Output(i);
-
-
-    }
 }

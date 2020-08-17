@@ -1,5 +1,6 @@
 package com.alan.audio;
 
+import com.alan.paint.Graph;
 import com.alan.util.Output;
 import com.alan.util.RunCmd;
 import com.alan.util.StringContainer;
@@ -8,14 +9,13 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-class AudioContainer {
-    private ArrayList<Integer> audioFrames = new ArrayList<Integer>();
+public class AudioContainer {
+    private ArrayList<Byte> audioFrames = new ArrayList<Byte>();
     public float duration;
     public float rate;
     public long frameLength;
@@ -27,14 +27,13 @@ class AudioContainer {
             rate = format.getFrameRate();
             frameLength = audioInputStream.getFrameLength();
             duration = frameLength / rate;
-            byte[] bytes = new byte[(int)frameLength];
-            audioInputStream.read(bytes);
+            byte[] bytes = new byte[(int) frameLength];
+
+            Output.print(format.getSampleRate(),format.getSampleSizeInBits(),format.getFrameRate(),format.getFrameSize());
+
             //todo get right read method
-            Output.print(duration);
-            for (byte frame : bytes) {
-                audioFrames.add((int)frame);
-            }
-            Output.print(audioFrames.size()/rate);
+
+            Output.print(audioFrames);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,26 +42,17 @@ class AudioContainer {
     public void loadByFFmpeg(String file) {
         String cmd = String.format("ffmpeg -i \"%s\"", file);
         RunCmd runCmd = new RunCmd(cmd);
-        ArrayList<String> outError = runCmd.outError;
-        String line = StringContainer.findLine(outError, "Duration");
-        Output.print(line);
-        String pattern = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
-        Pattern r = Pattern.compile(pattern);
-        Matcher matcher = r.matcher(line);
-        try {
-            if (matcher.find()) {
-                int h = Integer.decode(matcher.group(1));
-                int m = Integer.decode(matcher.group(2));
-                int s = Integer.decode(matcher.group(3));
-                int fs = Integer.decode(matcher.group(4));
-                duration = h * 3600 + m * 60 + s + fs / 60;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ArrayList<String> outError = runCmd.getOutError();
+        String regex = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
+        ArrayList<String> found = StringContainer.findLine(outError, regex);
+        int h = Integer.decode(found.get(0));
+        int m = Integer.decode(found.get(1));
+        int s = Integer.decode(found.get(2));
+        int fs = Integer.decode(found.get(3));
+        this.duration = h * 3600 + m * 60 + s + (float) fs / 60;
     }
 
-    public ArrayList<Integer> getAudioFrames() {
+    public ArrayList<Byte> getAudioFrames() {
         return audioFrames;
     }
 

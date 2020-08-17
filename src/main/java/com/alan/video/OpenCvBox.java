@@ -46,7 +46,7 @@ public class OpenCvBox {
 
         AiBaseTarget ai = new AiBaseTarget(splitHeight, big - smarll, (big + smarll) / 2, false);
 
-        FFmpegCmd fFmpegCmd = new FFmpegCmd().setInput(file);
+        FFmpegCmd fFmpegCmd = new FFmpegCmd().setInput(file).setCrop(0.5625, 1);
         Mat mat = new Mat();
         String lastHash;
         String currentHash = null;
@@ -79,6 +79,7 @@ public class OpenCvBox {
                 Output.print("now splitHeight:" + splitHeight);
             }
         }
+        Output.print(ai.toString());
     }
 
     public void writeContainer(String file) {
