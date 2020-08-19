@@ -20,6 +20,12 @@
          </repository>
      </repositories>
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13</version>
+            <scope>test</scope>
+        </dependency>
 <!--        百度语音识别-->
         <dependency>
             <groupId>com.baidu.aip</groupId>
