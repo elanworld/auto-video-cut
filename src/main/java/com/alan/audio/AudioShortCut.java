@@ -3,7 +3,6 @@ package com.alan.audio;
 import com.alan.cmd.FFmpegCmd;
 import com.alan.util.FilesBox;
 import com.alan.util.Output;
-import com.alan.util.StringContainer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ public class AudioShortCut {
     public static void main(String[] args) {
 
 
-        String dir = "F:\\Alan\\Music\\�ṷ";
+        String dir = "F:\\Alan\\Music\\�ṷ";
         File outDir = new File(dir, "out");
         if (!outDir.exists()) {
             outDir.mkdir();

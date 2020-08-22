@@ -1,6 +1,5 @@
 package com.alan.audio;
 
-import com.alan.paint.Graph;
 import com.alan.util.Output;
 import com.alan.util.RunCmd;
 import com.alan.util.StringContainer;
@@ -9,10 +8,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class AudioContainer {
     private ArrayList<Byte> audioFrames = new ArrayList<Byte>();

@@ -3,22 +3,26 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.example</groupId>
     <artifactId>auto-video-cut</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-     <repositories>
-         <repository>
-             <id>snapshots-repo</id>
-             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-             <releases>
-                 <enabled>false</enabled>
-             </releases>
-             <snapshots>
-                 <enabled>true</enabled>
-             </snapshots>
-         </repository>
-     </repositories>
+    <parent>
+        <artifactId>java-projects</artifactId>
+        <groupId>com.alan</groupId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+    <repositories>
+        <repository>
+            <id>snapshots-repo</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -26,7 +30,7 @@
             <version>4.13</version>
             <scope>test</scope>
         </dependency>
-<!--        百度语音识别-->
+        <!--        百度语音识别-->
         <dependency>
             <groupId>com.baidu.aip</groupId>
             <artifactId>java-sdk</artifactId>
@@ -73,6 +77,11 @@
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv-platform</artifactId>
             <version>1.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alan</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

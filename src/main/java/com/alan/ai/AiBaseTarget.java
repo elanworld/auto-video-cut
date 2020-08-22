@@ -1,8 +1,6 @@
 package com.alan.ai;
 
-import com.alan.util.Output;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class AiBaseTarget {

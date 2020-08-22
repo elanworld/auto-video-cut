@@ -1,7 +1,5 @@
 package com.alan.photo;
 
-import com.alan.util.Output;
-
 import java.awt.Graphics2D;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
