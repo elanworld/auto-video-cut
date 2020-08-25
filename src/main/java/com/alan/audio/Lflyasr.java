@@ -22,7 +22,7 @@ public class Lflyasr {
     public boolean getFinish() {
         Message message = lfasrClient.getProgress(task);
         JSONObject object = new JSONObject(message.getData());
-        new Output(object);
+        Output.print(object);
         if (object.getInt("status") == 9) {
             return true;
         } else {
@@ -44,7 +44,7 @@ public class Lflyasr {
             String onebest = json.getString("onebest");
             map.put(time, onebest);
         }
-        new Output(map);
+        Output.print(map);
         return map;
     }
 

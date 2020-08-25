@@ -14,6 +14,6 @@ public class BaiduAip {
     }
     public void speechRec(String pcmFile) {
         JSONObject json = aip.asr(pcmFile,"pcm",16000,null);
-        new Output(json);
+        Output.print(json);
     }
 }

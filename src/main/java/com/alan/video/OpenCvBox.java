@@ -15,6 +15,8 @@ import org.opencv.videoio.Videoio;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class OpenCvBox {
     static {
@@ -46,7 +48,9 @@ public class OpenCvBox {
 
         AiBaseTarget ai = new AiBaseTarget(splitHeight, big - smarll, (big + smarll) / 2, false);
 
-        FFmpegCmd fFmpegCmd = new FFmpegCmd().setInput(file).setCrop(0.5625, 1);
+        FFmpegCmd fFmpegCmd = new FFmpegCmd().setInput(file);
+        fFmpegCmd.setting(true,true);
+        FFmpegCmd.FiltersSet filtersSet = new FFmpegCmd.FiltersSet();
         Mat mat = new Mat();
         String lastHash;
         String currentHash = null;
@@ -68,12 +72,21 @@ public class OpenCvBox {
                 continue;
             }
 
-            Output.print(like, currentHash, lastHash);
+            // Output.print(like, currentHash, lastHash);
 
             double clipDuration = (end - start) / fps;
             if (like > splitHeight && clipDuration > smarll || clipDuration > big) {
-                fFmpegCmd.setOutput(getWriteName(file)).
+                String temp = getWriteName(file);
+                filtersSet.clear().setCrop(0.8,1);
+                fFmpegCmd.setInput(file).setOutput(temp).setFilter_complex(filtersSet).
                         setTime((float) ((double) start / fps), (float) ((double) end / fps)).run();
+                filtersSet.clear().setBoxblur(1080,1920);
+                fFmpegCmd.clear().setInput(temp).setOutput(getWriteName(file)).setFilter_complex(filtersSet).run();
+                try {
+                    Files.deleteIfExists(Path.of(temp));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 start = end;
                 splitHeight = ai.input(clipDuration);
                 Output.print("now splitHeight:" + splitHeight);
@@ -95,9 +108,9 @@ public class OpenCvBox {
     }
 
     /**
-     * ×Ô¶¯Éú³ÉĞÂÎÄ¼şÃû
+     * è‡ªåŠ¨ç”Ÿæˆæ–°æ–‡ä»¶å
      *
-     * @param file£ºÊÓÆµÂ·¾¶
+     * @param fileï¼šæ–‡ä»¶è·¯å¾„
      */
     private String getWriteName(String file) {
         String name = FilesBox.outDirFile(file, writeNum);

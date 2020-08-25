@@ -1,15 +1,17 @@
 package com.alan;
 
-import com.alan.audio.AudioContainer;
+import com.alan.util.FilesBox;
 import com.alan.video.OpenCvBox;
+
+import java.nio.file.Path;
 
 public class Main {
     public static void main(String[] args) {
-        String wav = "F:\\Alan\\Videos\\µÁ”∞\\audio_read.wav";
-        AudioContainer audioContainer = new AudioContainer();
-        audioContainer.loadAudio(wav);
-        System.exit(0);
-        String file = "F:\\Alan\\Videos\\Mine\\New.mp4";
-        OpenCvBox openCvBox = new OpenCvBox(file);
+        String dictory = "F:\\Alan\\Videos\\Mine\\selenium_download";
+        String dirTouched = Path.of("F:\\Alan\\Videos\\Mine\\selenium_download", "touched").toString();
+        for (String file : FilesBox.dictoryListFilter(dictory, "mp4", false)) {
+            OpenCvBox openCvBox = new OpenCvBox(file);
+            FilesBox.move(file, dirTouched);
+        }
     }
 }

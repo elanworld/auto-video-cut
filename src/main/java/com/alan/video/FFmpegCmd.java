@@ -15,9 +15,16 @@ public class FFmpegCmd {
     public Size size = new Size();
     public double duration;
     public double rate;
+    boolean wait = true;
+    boolean print = false;
 
     public FFmpegCmd() {
-        cmdList = new ArrayList<String>(Arrays.asList("ffmpeg", "overwrite", "time_off", "input", "crop", "dcode", "output"));
+        this.init();
+    }
+
+    public void init() {
+        cmdList = new ArrayList<String>(Arrays.asList("ffmpeg", "overwrite", "time_off", "input", "crop",
+                "filter_complex", "diyLine", "dcode", "output"));
         for (String cmd : cmdList) {
             cmdMap.put(cmd, null);
         }
@@ -35,11 +42,16 @@ public class FFmpegCmd {
         feasible();
         finalCmdLine = String.join(" ", cmds);
         finalCmds.add(finalCmdLine);
-        new RunCmd(finalCmdLine, 1000, true, false);
+        new RunCmd(finalCmdLine, 1000, this.wait, this.print);
     }
 
     public ArrayList<String> getFinalCmds() {
         return finalCmds;
+    }
+
+    public void setting(boolean wait, boolean print) {
+        this.wait = wait;
+        this.print = print;
     }
 
     public FFmpegCmd setInput(String input) {
@@ -49,6 +61,11 @@ public class FFmpegCmd {
 
     public FFmpegCmd setOutput(String output) {
         cmdMap.replace("output", String.format("\"%s\"", output));
+        return this;
+    }
+
+    public FFmpegCmd setDcode(String codec) {
+        cmdMap.replace("dcode", "-c:v " + codec);
         return this;
     }
 
@@ -63,12 +80,62 @@ public class FFmpegCmd {
     }
 
     public FFmpegCmd setCrop(double widthPercent, double heightPercent) {
-        getInfo();
-        int width = (int) (size.width * widthPercent);
-        int height = (int) (size.height * heightPercent);
-        int startWidth = (int) ((size.width - width) / 2);
-        int startHeight = (int) ((size.height - height) / 2);
-        cmdMap.replace("crop", String.format("-vf crop=%s:%s:%s:%s", width, height, startWidth, startHeight));
+        cmdMap.replace("crop", String.format("-vf crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
+        return this;
+    }
+
+    public FFmpegCmd setDiyLine(String diyLine) {
+        cmdMap.replace("diyLine", diyLine);
+        return this;
+    }
+
+    public FFmpegCmd clear() {
+        this.init();
+        return this;
+    }
+
+    public static class FiltersSet {
+        ArrayList<String> filters;
+        String filterLine = "";
+
+        public FiltersSet() {
+            filters = new ArrayList<>();
+            // filters.add("-filter_complex");
+        }
+
+        public FiltersSet setLine(String diyLine) {
+            filters.add(diyLine);
+            return this;
+        }
+
+        public FiltersSet clear() {
+            filters.clear();
+            return this;
+        }
+
+        public FiltersSet setCrop(double widthPercent, double heightPercent) {
+            filters.add(String.format("crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
+            return this;
+        }
+
+        public FiltersSet setBoxblur(double width, double height) {
+            String line = String.format("split=2[a][b];[a]scale=%s:%s,boxblur=20:20[1];" +
+                            "[b]scale=%s:ih*%s/iw[2];[1][2]overlay=0:(H-h)/2 -aspect %d:%d",
+                    width, height, width, width, (int) width, (int) height);
+            filters.add(line);
+            return this;
+        }
+
+        public String getFilterLine() {
+            ArrayList<String> clone = (ArrayList<String>) filters.clone();
+            filterLine = "-filter_complex " + String.join(";", clone);
+            return filterLine;
+        }
+    }
+
+    public FFmpegCmd setFilter_complex(FiltersSet filtersSet) {
+        String filterLine = filtersSet.getFilterLine();
+        cmdMap.replace("filter_complex", filterLine);
         return this;
     }
 
