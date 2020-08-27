@@ -94,7 +94,7 @@ public class FFmpegCmd {
         return this;
     }
 
-    public static class FiltersSet {
+    public class FiltersSet {
         ArrayList<String> filters;
         String filterLine = "";
 

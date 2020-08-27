@@ -24,7 +24,7 @@ public class FFmpegTest {
 
     @Test
     public void filter() {
-        FiltersSet filtersSet = new FiltersSet();
+        FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
         filtersSet.setCrop(0.8,1);
         filtersSet.setBoxblur(1500,1500);
         fFmpegCmd.setFilter_complex(filtersSet).run();

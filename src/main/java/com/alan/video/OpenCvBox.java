@@ -35,6 +35,7 @@ public class OpenCvBox {
     double smarll = 15;
     double big = 35;
 
+
     public OpenCvBox(String file) {
         ImagePHash imagePHash = new ImagePHash();
         VideoCapture videoCapture = new VideoCapture();
@@ -49,8 +50,7 @@ public class OpenCvBox {
         AiBaseTarget ai = new AiBaseTarget(splitHeight, big - smarll, (big + smarll) / 2, false);
 
         FFmpegCmd fFmpegCmd = new FFmpegCmd().setInput(file);
-        fFmpegCmd.setting(true,true);
-        FFmpegCmd.FiltersSet filtersSet = new FFmpegCmd.FiltersSet();
+        fFmpegCmd.setting(true, true);
         Mat mat = new Mat();
         String lastHash;
         String currentHash = null;
@@ -76,17 +76,7 @@ public class OpenCvBox {
 
             double clipDuration = (end - start) / fps;
             if (like > splitHeight && clipDuration > smarll || clipDuration > big) {
-                String temp = getWriteName(file);
-                filtersSet.clear().setCrop(0.8,1);
-                fFmpegCmd.setInput(file).setOutput(temp).setFilter_complex(filtersSet).
-                        setTime((float) ((double) start / fps), (float) ((double) end / fps)).run();
-                filtersSet.clear().setBoxblur(1080,1920);
-                fFmpegCmd.clear().setInput(temp).setOutput(getWriteName(file)).setFilter_complex(filtersSet).run();
-                try {
-                    Files.deleteIfExists(Path.of(temp));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                clipper(file, fFmpegCmd, start, end);
                 start = end;
                 splitHeight = ai.input(clipDuration);
                 Output.print("now splitHeight:" + splitHeight);
@@ -98,6 +88,26 @@ public class OpenCvBox {
     public void writeContainer(String file) {
         VideoWriter videoWriter = new VideoWriter();
         videoWriter.open(getWriteName(file), (int) fourcc, fps, frameSize);
+    }
+
+    private boolean clipper(String file, FFmpegCmd fFmpegCmd, int start, int end) {
+        FFmpegCmd.FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
+        String temp = getWriteName(file);
+        String out = getWriteName(file);
+        if (Files.exists(Path.of(out)))
+            return false;
+        filtersSet.setCrop(0.8, 1);
+        fFmpegCmd.setInput(file).setOutput(temp).setFilter_complex(filtersSet).
+                setTime((float) ((double) start / fps), (float) ((double) end / fps)).run();
+        filtersSet.setBoxblur(1080, 1920);
+        fFmpegCmd.clear().setInput(temp).setOutput(out).setFilter_complex(filtersSet).run();
+        try {
+            Files.deleteIfExists(Path.of(temp));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+
     }
 
     private static BufferedImage mat2BufferedImage(Mat matrix) throws Exception {
