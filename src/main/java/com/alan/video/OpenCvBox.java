@@ -15,15 +15,16 @@ import org.opencv.videoio.Videoio;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class OpenCvBox {
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
-    int writeNum = 1;
     double fps;
     double fourcc;
     double duration;
@@ -94,7 +95,7 @@ public class OpenCvBox {
         FFmpegCmd.FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
         String temp = getWriteName(file);
         String out = getWriteName(file);
-        if (Files.exists(Path.of(out)))
+        if (Files.exists(new File(out).toPath()))
             return false;
         filtersSet.setCrop(0.8, 1);
         fFmpegCmd.setInput(file).setOutput(temp).setFilter_complex(filtersSet).
@@ -102,7 +103,7 @@ public class OpenCvBox {
         filtersSet.setBoxblur(1080, 1920);
         fFmpegCmd.clear().setInput(temp).setOutput(out).setFilter_complex(filtersSet).run();
         try {
-            Files.deleteIfExists(Path.of(temp));
+            Files.deleteIfExists(Paths.get(temp));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,9 +124,8 @@ public class OpenCvBox {
      * @param file：文件路径
      */
     private String getWriteName(String file) {
-        String name = FilesBox.outDirFile(file, writeNum);
+        String name = FilesBox.outDirFile(file);
         Output.print(name);
-        writeNum += 1;
         return name;
     }
 }

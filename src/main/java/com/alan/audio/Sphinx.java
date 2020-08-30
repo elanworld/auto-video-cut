@@ -11,7 +11,7 @@ import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.api.StreamSpeechRecognizer;
 import edu.cmu.sphinx.result.WordResult;
 
-//本地语音识别
+//鏈湴璇煶璇嗗埆
 @Deprecated
 public class Sphinx {
     public static void main(String[] args) throws Exception {
@@ -23,7 +23,7 @@ public class Sphinx {
         configuration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
 
         StreamSpeechRecognizer streamSpeechRecognizer = new StreamSpeechRecognizer(configuration);
-        InputStream stream = new FileInputStream(new File("F:\\Alan\\Videos\\电影\\speak.wav"));
+        InputStream stream = new FileInputStream(new File("F:\\Alan\\Videos\\鐢靛奖\\speak.wav"));
 
 
         streamSpeechRecognizer.startRecognition(stream);

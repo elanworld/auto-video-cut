@@ -9,12 +9,11 @@ import java.awt.image.BufferedImage;
 import java.util.Date;
 
 public class CvContainer {
+    FFmpegFrameGrabber fFmpegFrameGrabber;
+    FFmpegFrameRecorder fFmpegFrameRecorder;
     Java2DFrameConverter java2DFrameConverter = new Java2DFrameConverter();
     ImagePHash imagePHash = new ImagePHash();
     String file;
-    int writeNum;
-    FFmpegFrameGrabber fFmpegFrameGrabber;
-    FFmpegFrameRecorder fFmpegFrameRecorder;
     float rate;
     long start = new Date().getTime();
 
@@ -23,6 +22,15 @@ public class CvContainer {
             grabFrame(file);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void audioRead(String file) throws Exception {
+        fFmpegFrameGrabber = FFmpegFrameGrabber.createDefault(file);
+        fFmpegFrameGrabber.start();
+        for (int i = 0; i<10;i++) {
+            Frame frame = fFmpegFrameGrabber.grabFrame(true, false, false, true);
+            Output.print(frame);
         }
     }
 
@@ -59,7 +67,7 @@ public class CvContainer {
 
     private void recorder() throws Exception{
         fFmpegFrameRecorder = new FFmpegFrameRecorder(
-                getWriteName(file),
+                FilesBox.outDirFile(file),
                 fFmpegFrameGrabber.getImageWidth(),
                 fFmpegFrameGrabber.getImageHeight()
         );
@@ -67,17 +75,6 @@ public class CvContainer {
         fFmpegFrameRecorder.setAudioChannels(2);
         fFmpegFrameRecorder.start();
 
-    }
-
-    /**
-     * 自动生成新文件名
-     * @param file：视频路径
-     */
-    private String getWriteName(String file) {
-        String name = FilesBox.outDirFile(file, writeNum);
-        Output.print(name);
-        writeNum += 1;
-        return name;
     }
 
     @Deprecated
