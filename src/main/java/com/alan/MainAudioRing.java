@@ -1,7 +1,7 @@
 package com.alan;
 
 import com.alan.audio.AudioContainer;
-import com.alan.cmd.FFmpegCmd;
+import com.alan.video.FFmpegCmd;
 import com.alan.util.FilesBox;
 import com.alan.util.Output;
 

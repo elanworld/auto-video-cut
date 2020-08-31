@@ -1,7 +1,6 @@
 package com.alan.video;
 
 import com.alan.ai.AiBaseTarget;
-import com.alan.cmd.FFmpegCmd;
 import com.alan.photo.ImagePHash;
 import com.alan.util.FilesBox;
 import com.alan.util.Output;
@@ -17,7 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class OpenCvBox {

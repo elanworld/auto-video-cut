@@ -1,34 +1,35 @@
-package com.alan.cmd;
+package com.alan.video;
 
 import com.alan.util.RunCmd;
 import com.alan.util.StringContainer;
-import sun.nio.fs.WindowsFileSystemProvider;
-
-import java.nio.file.Paths;
 import java.util.*;
 
 
 public class FFmpegCmd {
     String ffmpeg = "ffmpeg";
-    List<String> inputFiles = new ArrayList<>();
+    List<String> inputFiles;
     List<String> cmdList;
-    LinkedHashMap<String, String> cmdMap = new LinkedHashMap<>();
+    LinkedHashMap<String, String> cmdMap;
     String finalCmdLine;
-    List<String> finalCmds = new ArrayList<>();
+    List<String> finalCmds;
 
     public Size size = new Size();
     public double duration;
     public double rate;
     boolean wait = true;
-    boolean print = false;
+    boolean print = true;
 
     public FFmpegCmd() {
         this.init();
     }
 
     public void init() {
-        cmdList = new ArrayList<String>(Arrays.asList("ffmpeg", "overwrite", "time_off", "input", "crop",
-                "filter_complex", "diyLine","map", "dcode", "output"));
+        finalCmds = new ArrayList<>();
+        cmdMap = new LinkedHashMap<>();
+        inputFiles = new ArrayList<>();
+        finalCmdLine = null;
+        cmdList = new ArrayList<>(Arrays.asList("ffmpeg", "overwrite", "time_off", "input", "crop",
+                "filter_complex", "diyLine", "map", "dcode", "output"));
         for (String cmd : cmdList) {
             cmdMap.put(cmd, null);
         }
@@ -60,13 +61,14 @@ public class FFmpegCmd {
 
     /**
      * set input file first
+     *
      * @param input
      * @return
      */
     public FFmpegCmd setInput(String input) {
         String line = String.format("-i \"%s\"", input);
         inputFiles.add(line);
-        cmdMap.replace("input", String.join(" ",inputFiles));
+        cmdMap.replace("input", String.join(" ", inputFiles));
         return this;
     }
 
@@ -134,12 +136,12 @@ public class FFmpegCmd {
         }
 
         public FiltersSet setAudioMix() {
-            filters.add(String.format("amix=inputs=%s:duration=first:dropout_transition=2",inputFiles.size()));
+            filters.add(String.format("amix=inputs=%s:duration=first:dropout_transition=2", inputFiles.size()));
             return this;
         }
 
         public FiltersSet setAudioVolum(double ratio) {
-            filters.add(String.format("volume=volume=%s",ratio));
+            filters.add(String.format("volume=volume=%s", ratio));
             return this;
         }
 
@@ -159,7 +161,8 @@ public class FFmpegCmd {
                 selects.add(line);
             }
             String join = String.join("+", selects);
-            if (isVideo())
+            String output = cmdMap.get("output");
+            if (isVideo(output))
                 selectJoin = String.format("select='%s',setpts=N/FRAME_RATE/TB;aselect='%s',asetpts=N/SR/TB", join, join);
             else
                 selectJoin = String.format("aselect='%s',asetpts=N/SR/TB", join);
@@ -180,13 +183,12 @@ public class FFmpegCmd {
         return this;
     }
 
-    private Boolean isVideo() {
+    public Boolean isVideo(String file) {
         ArrayList<String> types = new ArrayList<String>(Arrays.asList("mp4", "avi", "mkv"));
-        String input = cmdMap.get("input");
-        if (input == null)
+        if (file == null)
             throw new RuntimeException("please set input before this");
         for (String type : types) {
-            if (input.matches(".*" + type))
+            if (file.matches(".*" + type + ".*"))
                 return true;
         }
         return false;

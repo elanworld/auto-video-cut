@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         String dictory = "F:\\Alan\\Videos\\Mine\\selenium_download";
         String dirTouched = new File("F:\\Alan\\Videos\\Mine\\selenium_download", "touched").toString();
-        for (String file : FilesBox.dictoryListFilter(dictory, "mp4", false)) {
+        for (String file : FilesBox.dictoryListFilter(dictory, false, "mp4")) {
             OpenCvBox openCvBox = new OpenCvBox(file);
             FilesBox.move(file, dirTouched);
         }

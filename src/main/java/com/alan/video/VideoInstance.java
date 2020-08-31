@@ -1,9 +1,5 @@
 package com.alan.video;
 
-import com.alan.cmd.FFmpegCmd;
-import org.bytedeco.opencv.presets.opencv_core;
-import org.bytedeco.tesseract.TFile;
-
 public class VideoInstance {
     public void crop () {
         String file = "F:\\Alan\\Videos\\Mine\\New Best Zach King Magic.mp4";

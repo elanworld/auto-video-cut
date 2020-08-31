@@ -68,6 +68,8 @@ public class AudioContainer {
             time.add(clips.get(i + 1).get(0));
             silences.add(time);
         }
+        if (silences.isEmpty())
+            throw new RuntimeException("fail to get audio time clips from python connection");
         return silences;
     }
 

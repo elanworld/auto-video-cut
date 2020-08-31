@@ -1,8 +1,6 @@
 package com.alan.video;
 
-import com.alan.cmd.FFmpegCmd;
-import com.alan.cmd.FFmpegCmd.FiltersSet;
-import com.alan.util.Output;
+import com.alan.video.FFmpegCmd.FiltersSet;
 import org.junit.Test;
 
 public class FFmpegTest {
