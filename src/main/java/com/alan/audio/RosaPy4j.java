@@ -3,7 +3,6 @@ package com.alan.audio;
 
 import com.alan.util.Output;
 import com.alan.util.RunCmd;
-import org.python.antlr.ast.Str;
 import py4j.ClientServer;
 import py4j.GatewayServer;
 
@@ -42,9 +41,15 @@ public class RosaPy4j {
             clips = client.audio_time(file);
             client.shutdown();
         } catch (Exception e) {
+            String message = e.getMessage();
             e.printStackTrace();
+            if (message.matches(".*127.0.0.1:25333.*"))
+                new RunCmd("taskkill /f /im python.exe");
+            // throw new RuntimeException(e.getMessage());
         }
         clientServer.shutdown();
+        if (clips == null)
+            throw new RuntimeException("fail to get audio time clips from python connection");
         return clips;
     }
 }

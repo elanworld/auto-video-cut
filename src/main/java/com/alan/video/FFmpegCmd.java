@@ -2,20 +2,18 @@ package com.alan.video;
 
 import com.alan.util.RunCmd;
 import com.alan.util.StringContainer;
+
 import java.util.*;
 
 
 public class FFmpegCmd {
     String ffmpeg = "ffmpeg";
+    LinkedHashMap<String, String> cmdMap;
     List<String> inputFiles;
     List<String> cmdList;
-    LinkedHashMap<String, String> cmdMap;
-    String finalCmdLine;
     List<String> finalCmds;
+    String finalCmdLine;
 
-    public Size size = new Size();
-    public double duration;
-    public double rate;
     boolean wait = true;
     boolean print = true;
 
@@ -29,7 +27,7 @@ public class FFmpegCmd {
         inputFiles = new ArrayList<>();
         finalCmdLine = null;
         cmdList = new ArrayList<>(Arrays.asList("ffmpeg", "overwrite", "time_off", "input", "crop",
-                "filter_complex", "diyLine", "map", "dcode", "output"));
+                "filter_complex", "diyLine", "map", "decode", "output"));
         for (String cmd : cmdList) {
             cmdMap.put(cmd, null);
         }
@@ -78,12 +76,12 @@ public class FFmpegCmd {
     }
 
     public FFmpegCmd setDcode(String codec) {
-        cmdMap.replace("dcode", "-c:v " + codec);
+        cmdMap.replace("decode", "-c:v " + codec);
         return this;
     }
 
     public FFmpegCmd setDcodeCopy() {
-        cmdMap.replace("dcode", "-c copy");
+        cmdMap.replace("decode", "-c copy");
         return this;
     }
 
@@ -112,6 +110,16 @@ public class FFmpegCmd {
         return this;
     }
 
+    public FFmpegCmd setFilter_complex(FiltersSet filtersSet) {
+        String filterLine = filtersSet.getFilterLine();
+        cmdMap.replace("filter_complex", filterLine);
+        return this;
+    }
+
+    /**
+     * add filters to a system to manage
+     * just repeat it if filter not set a input or output stream
+     */
     public class FiltersSet {
         ArrayList<String> filters;
         String filterLine = "";
@@ -120,18 +128,13 @@ public class FFmpegCmd {
             filters = new ArrayList<>();
         }
 
-        public FiltersSet setLine(String diyLine) {
-            filters.add(diyLine);
-            return this;
-        }
-
         public FiltersSet clear() {
             filters.clear();
             return this;
         }
 
-        public FiltersSet setCrop(double widthPercent, double heightPercent) {
-            filters.add(String.format("crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
+        public FiltersSet setLine(String diyLine) {
+            filters.add(diyLine);
             return this;
         }
 
@@ -140,11 +143,35 @@ public class FFmpegCmd {
             return this;
         }
 
-        public FiltersSet setAudioVolum(double ratio) {
-            filters.add(String.format("volume=volume=%s", ratio));
+        public FiltersSet setAudioPass(int low, int high) {
+            filters.add(String.format("highpass=f=%s,lowpass=f=%s", low, high));
             return this;
         }
 
+        public FiltersSet setAudioVolum(double db) {
+            double meanVolume = getInfo().meanVolume;
+            double slip = db - meanVolume;
+            filters.add(String.format("volume=volume=%sdB", slip));
+            return this;
+        }
+
+        public FiltersSet setAudioVolumPercent(double percent) {
+            filters.add(String.format("volume=volume=%s", percent));
+            return this;
+        }
+
+        public FiltersSet setAudioLoudnorm() {
+            filters.add("loudnorm");
+            return this;
+        }
+
+        /**
+         * add new background with glasses blur from origin video
+         *
+         * @param width
+         * @param height
+         * @return
+         */
         public FiltersSet setBoxblur(double width, double height) {
             String line = String.format("split=2[a][b];[a]scale=%s:%s,boxblur=20:20[1];" +
                             "[b]scale=%s:ih*%s/iw[2];[1][2]overlay=0:(H-h)/2 -aspect %d:%d",
@@ -153,6 +180,12 @@ public class FFmpegCmd {
             return this;
         }
 
+        /**
+         * select mult clips to one output
+         *
+         * @param timeClips
+         * @return
+         */
         public FiltersSet setSelect(List<List<Double>> timeClips) {
             ArrayList<String> selects = new ArrayList<>();
             String selectJoin;
@@ -162,6 +195,8 @@ public class FFmpegCmd {
             }
             String join = String.join("+", selects);
             String output = cmdMap.get("output");
+            if (output == null)
+                throw new RuntimeException("please set output first");
             if (isVideo(output))
                 selectJoin = String.format("select='%s',setpts=N/FRAME_RATE/TB;aselect='%s',asetpts=N/SR/TB", join, join);
             else
@@ -170,17 +205,121 @@ public class FFmpegCmd {
             return this;
         }
 
+        public FiltersSet setCrop(double widthPercent, double heightPercent) {
+            filters.add(String.format("crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
+            return this;
+        }
+
         private String getFilterLine() {
             ArrayList<String> clone = (ArrayList<String>) filters.clone();
-            filterLine = "-filter_complex " + String.join(";", clone);
+            filterLine = "-filter_complex " + String.join(",", clone);
             return filterLine;
         }
     }
 
-    public FFmpegCmd setFilter_complex(FiltersSet filtersSet) {
-        String filterLine = filtersSet.getFilterLine();
-        cmdMap.replace("filter_complex", filterLine);
-        return this;
+    private class Metadata {
+        double width, height;
+        double duration;
+        double rate;
+        double meanVolume;
+
+
+        public double getRate() {
+            return rate;
+        }
+
+        public double getMeanVolume() {
+            return meanVolume;
+        }
+
+        public void setMeanVolume(double meanVolume) {
+            this.meanVolume = meanVolume;
+        }
+
+        public void setRate(double rate) {
+            this.rate = rate;
+        }
+
+        public double getWidth() {
+            return width;
+        }
+
+        public void setWidth(double width) {
+            this.width = width;
+        }
+
+        public double getHeight() {
+            return height;
+        }
+
+        public void setHeight(double height) {
+            this.height = height;
+        }
+
+        public double getDuration() {
+            return duration;
+        }
+
+        public void setDuration(double duration) {
+            this.duration = duration;
+        }
+
+        @Override
+        public String toString() {
+            return "Metadata{" +
+                    "width=" + width +
+                    ", height=" + height +
+                    ", duration=" + duration +
+                    ", rate=" + rate +
+                    ", meanVolume=" + meanVolume +
+                    '}';
+        }
+    }
+
+    private void feasible() {
+        if (cmdMap.get("dcode") != null && cmdMap.get("crop") != null) {
+            throw new RuntimeException("can`t set crop and dcode together!");
+        }
+        if (cmdMap.get("input") == null) {
+            throw new RuntimeException("did`t set any input file");
+        }
+    }
+
+    private Metadata getInfo() {
+        Metadata metadata = new Metadata();
+        String file = cmdMap.get("input");
+        if (file == null) {
+            throw new RuntimeException("please set input file first");
+        }
+        String cmd = String.format("ffmpeg %s -filter_complex volumedetect -f null -", file);
+        RunCmd runCmd = new RunCmd(cmd);
+        ArrayList<String> outError = runCmd.getError();
+        //get duration
+        String regex = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
+        ArrayList<String> found = StringContainer.findLine(outError, regex);
+        if (found.size() > 0) {
+            int h = Integer.parseInt(found.get(0));
+            int m = Integer.parseInt(found.get(1));
+            int s = Integer.parseInt(found.get(2));
+            int fs = Integer.parseInt(found.get(3));
+            metadata.duration = h * 3600 + m * 60 + s + (double) fs / 60;
+        }
+        //get size
+        // regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+) fps,.*";
+        regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+).(\\d+) fps,.*";
+        found = StringContainer.findLine(outError, regex);
+        if (found.size() > 0) {
+            metadata.width = Integer.parseInt(found.get(0));
+            metadata.height = Integer.parseInt(found.get(1));
+            metadata.rate = Double.parseDouble(found.get(2) + "." + found.get(3));
+        }
+
+        regex = ".*mean_volume: (.*) dB.*";
+        found = StringContainer.findLine(outError, regex);
+        if (found.size() > 0) {
+            metadata.meanVolume = Double.parseDouble(found.get(0));
+        }
+        return metadata;
     }
 
     public Boolean isVideo(String file) {
@@ -194,77 +333,12 @@ public class FFmpegCmd {
         return false;
     }
 
-    private void feasible() {
-        if (cmdMap.get("dcode") != null && cmdMap.get("crop") != null) {
-            throw new RuntimeException("can`t set crop and dcode together!");
+
+    public class SpecialFormat {
+
+        public void baiduAipPCM() {
+            String pcm = "-acodec pcm_s16le -f s16le -ac 1 -ar 16000";
+            cmdMap.replace("decode",pcm);
         }
-        if (cmdMap.get("input") == null) {
-            throw new RuntimeException("did`t set any input file");
-        }
-    }
-
-    private void getInfo() {
-        String file = cmdMap.get("input");
-        String cmd = String.format("ffmpeg %s", file);
-        RunCmd runCmd = new RunCmd(cmd, 5, true, false);
-        ArrayList<String> outError = runCmd.getError();
-        //get duration
-        String regex = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
-        ArrayList<String> found = StringContainer.findLine(outError, regex);
-        if (found.size() > 0) {
-            int h = Integer.parseInt(found.get(0));
-            int m = Integer.parseInt(found.get(1));
-            int s = Integer.parseInt(found.get(2));
-            int fs = Integer.parseInt(found.get(3));
-            duration = h * 3600 + m * 60 + s + (double) fs / 60;
-        }
-        //get size
-        // regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+) fps,.*";
-        regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+).(\\d+) fps,.*";
-        found = StringContainer.findLine(outError, regex);
-        if (found.size() > 0) {
-            size.width = Integer.parseInt(found.get(0));
-            size.height = Integer.parseInt(found.get(1));
-            rate = Double.parseDouble(found.get(2) + "." + found.get(3));
-        }
-    }
-
-    private class Size {
-        public double width, height;
-
-        public Size() {
-            this(0, 0);
-        }
-
-        public Size(double width, double height) {
-            this.width = width;
-            this.height = height;
-        }
-
-        @Override
-        public String toString() {
-            return "Size{" +
-                    "width=" + width +
-                    ", height=" + height +
-                    '}';
-        }
-    }
-
-    public void cut(String file, String outfile, double start, double end) {
-        setInput(file).setOutput(outfile).setTime(start, end);
-    }
-
-    public void cutCrop(String file, String outfile, double widthPercent, double heightPercent) {
-        finalCmdLine = setInput(file).setOutput(outfile).setCrop(widthPercent, heightPercent).finalCmdLine;
-    }
-
-    public void getPCM(String file, String outfile, double start, double end) {
-        finalCmdLine = String.format("%s -y -ss %s -t %s -i \"%s\" -acodec pcm_s16le -f s16le -ac 1 -ar 16000 \"%s\"",
-                ffmpeg, start, end, file, outfile);
-    }
-
-    public void videoLinkAudio(String video, String audio, String outfile, double start, double end) {
-        finalCmdLine = String.format("%s -y -i \"%s\" -i \"%s\" -map 0:v:0 -map 1:a:0 -codec copy \"%s\"",
-                ffmpeg, video, audio, outfile);
     }
 }

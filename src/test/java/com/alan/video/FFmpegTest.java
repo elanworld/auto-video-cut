@@ -15,12 +15,11 @@ public class FFmpegTest {
         fFmpegCmd.setting(true, true);
     }
 
-    @Test
+
     public void crop() {
         fFmpegCmd.setCrop(0.2, 0.2).run();
     }
 
-    @Test
     public void filter() {
         FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
         filtersSet.setCrop(0.8,1);

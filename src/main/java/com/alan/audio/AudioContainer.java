@@ -69,7 +69,7 @@ public class AudioContainer {
             silences.add(time);
         }
         if (silences.isEmpty())
-            throw new RuntimeException("fail to get audio time clips from python connection");
+            throw new RuntimeException("get 0 clip");
         return silences;
     }
 

@@ -61,9 +61,9 @@ public class ImagePHash {
     // Returns a 'binary string' (like. 001010111011100010) which is easy to do a hamming distance on.
     public String getHash(BufferedImage img) {
 
-        /* 1. Reduce size.
+        /* 1. Reduce metadata.
          * Like Average Hash, pHash starts with a small image.
-         * However, the image is larger than 8x8; 32x32 is a good size.
+         * However, the image is larger than 8x8; 32x32 is a good metadata.
          * This is really done to simplify the DCT computation and not
          * because it is needed to reduce the high frequencies.
          */

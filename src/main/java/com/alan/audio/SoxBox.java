@@ -1,12 +1,14 @@
 package com.alan.audio;
 
 import com.alan.util.FilesBox;
+import com.alan.util.Output;
 import com.alan.util.RunCmd;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
 public class SoxBox {
-    String sox = "sox";
+    String sox = "cmd /c sox";
 
     public SoxBox noise(String noise, String file, String outFile) {
         String prof = FilesBox.outDirFile(file) + ".prof";
