@@ -7,8 +7,9 @@ auto cut video to a clip what save climax of oringin vidweo file
 3. 识别切割场景
 4. 可选用javacv opencv ffmpeg任意一种
 # 使用指南
-1. 安装ffmpeg，[ffmpeg官网地址](https://ffmpeg.org) ，并配置环境变量。
+1. 安装[ffmpeg](https://ffmpeg.org) ，并配置环境变量。
 2. maven 载入最新Javacv 和 opencv 库
 
 #更新
 1.处理任务变复杂，处理时间减慢未视频长度5倍（忽略：电脑处理，视性能而定）
+2.MainSpeakClipper：录音场景下说话片段识别选取。

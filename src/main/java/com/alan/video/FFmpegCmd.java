@@ -1,18 +1,20 @@
 package com.alan.video;
 
 import com.alan.util.RunCmd;
+import com.alan.util.RunBox;
 import com.alan.util.StringContainer;
 
 import java.util.*;
 
 
-public class FFmpegCmd {
+public class FFmpegCmd extends RunBox {
     String ffmpeg = "ffmpeg";
+    RunCmd runCmd;
     LinkedHashMap<String, String> cmdMap;
     List<String> inputFiles;
     List<String> cmdList;
     List<String> finalCmds;
-    String finalCmdLine;
+    String cmdLine;
 
     boolean wait = true;
     boolean print = true;
@@ -25,7 +27,7 @@ public class FFmpegCmd {
         finalCmds = new ArrayList<>();
         cmdMap = new LinkedHashMap<>();
         inputFiles = new ArrayList<>();
-        finalCmdLine = null;
+        cmdLine = null;
         cmdList = new ArrayList<>(Arrays.asList("ffmpeg", "overwrite", "time_off", "input", "crop",
                 "filter_complex", "diyLine", "map", "decode", "output"));
         for (String cmd : cmdList) {
@@ -33,6 +35,13 @@ public class FFmpegCmd {
         }
         cmdMap.replace("ffmpeg", ffmpeg);
         cmdMap.replace("overwrite", "-y");
+    }
+
+    public void run(boolean clear) {
+        run();
+        if (clear) {
+            clear();
+        }
     }
 
     public void run() {
@@ -43,13 +52,23 @@ public class FFmpegCmd {
             }
         }
         feasible();
-        finalCmdLine = String.join(" ", cmds);
-        finalCmds.add(finalCmdLine);
-        new RunCmd(finalCmdLine, 1000, this.wait, this.print);
+        cmdLine = String.join(" ", cmds);
+        finalCmds.add(cmdLine);
+        runCmd = new RunCmd(cmdLine, 1000, this.wait, this.print);
+        if (this.wait) {
+            ArrayList<String> error = runCmd.getError();
+            error.addAll(runCmd.getOutput());
+            ArrayList<String> noFile = StringContainer.findLine(error, ".*(No such file or directory).*");
+            if (!noFile.isEmpty())
+                throw new RuntimeException("got error: " + noFile.toString());
+        }
     }
 
-    public List<String> getFinalCmds() {
-        return finalCmds;
+    @Override
+    public List<String> getResult() {
+        ArrayList<String> output = runCmd.getOutput();
+        output.addAll(runCmd.getError());
+        return output;
     }
 
     public void setting(boolean wait, boolean print) {
@@ -68,6 +87,12 @@ public class FFmpegCmd {
         inputFiles.add(line);
         cmdMap.replace("input", String.join(" ", inputFiles));
         return this;
+    }
+
+    public FFmpegCmd setInput(String input, boolean clearInput) {
+        if (clearInput)
+            inputFiles.clear();
+        return setInput(input);
     }
 
     public FFmpegCmd setOutput(String output) {
@@ -128,7 +153,7 @@ public class FFmpegCmd {
             filters = new ArrayList<>();
         }
 
-        public FiltersSet clear() {
+        private FiltersSet clear() {
             filters.clear();
             return this;
         }
@@ -211,8 +236,8 @@ public class FFmpegCmd {
         }
 
         private String getFilterLine() {
-            ArrayList<String> clone = (ArrayList<String>) filters.clone();
-            filterLine = "-filter_complex " + String.join(",", clone);
+            String filterLine = "-filter_complex " + String.join(",", filters);
+            filters.clear();
             return filterLine;
         }
     }
@@ -338,7 +363,7 @@ public class FFmpegCmd {
 
         public void baiduAipPCM() {
             String pcm = "-acodec pcm_s16le -f s16le -ac 1 -ar 16000";
-            cmdMap.replace("decode",pcm);
+            cmdMap.replace("decode", pcm);
         }
     }
 }

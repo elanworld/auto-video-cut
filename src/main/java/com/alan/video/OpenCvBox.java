@@ -14,7 +14,6 @@ import org.opencv.videoio.Videoio;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -31,11 +30,14 @@ public class OpenCvBox {
 
     //need to defile
     double splitHeight = 0.3;
-    double smarll = 15;
+    double small = 15;
     double big = 35;
 
+    public OpenCvBox() {
+        Output.setLog(false);
+    }
 
-    public OpenCvBox(String file) {
+    public void recognition(String file) {
         ImagePHash imagePHash = new ImagePHash();
         VideoCapture videoCapture = new VideoCapture();
         videoCapture.open(file);
@@ -46,9 +48,9 @@ public class OpenCvBox {
         frameSize.width = videoCapture.get(Videoio.CAP_PROP_FRAME_WIDTH);
         frameSize.height = videoCapture.get(Videoio.CAP_PROP_FRAME_HEIGHT);
 
-        AiBaseTarget ai = new AiBaseTarget(splitHeight, big - smarll, (big + smarll) / 2, false);
+        AiBaseTarget ai = new AiBaseTarget(splitHeight, big - small, (big + small) / 2, false);
 
-        FFmpegCmd fFmpegCmd = new FFmpegCmd().setInput(file);
+        FFmpegCmd fFmpegCmd = new FFmpegCmd();
         fFmpegCmd.setting(true, true);
         Mat mat = new Mat();
         String lastHash;
@@ -74,7 +76,7 @@ public class OpenCvBox {
             // Output.print(like, currentHash, lastHash);
 
             double clipDuration = (end - start) / fps;
-            if (like > splitHeight && clipDuration > smarll || clipDuration > big) {
+            if (like > splitHeight && clipDuration > small || clipDuration > big) {
                 clipper(file, fFmpegCmd, start, end);
                 start = end;
                 splitHeight = ai.input(clipDuration);
@@ -84,7 +86,7 @@ public class OpenCvBox {
         Output.print(ai.toString());
     }
 
-    public void writeContainer(String file) {
+    public void write(String file) {
         VideoWriter videoWriter = new VideoWriter();
         videoWriter.open(getWriteName(file), (int) fourcc, fps, frameSize);
     }
@@ -93,13 +95,13 @@ public class OpenCvBox {
         FFmpegCmd.FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
         String temp = getWriteName(file);
         String out = getWriteName(file);
-        if (Files.exists(new File(out).toPath()))
+        if (Files.exists(Paths.get(out)))
             return false;
         filtersSet.setCrop(0.8, 1);
         fFmpegCmd.setInput(file).setOutput(temp).setFilter_complex(filtersSet).
-                setTime((float) ((double) start / fps), (float) ((double) end / fps)).run();
+                setTime((float) ((double) start / fps), (float) ((double) end / fps)).run(true);
         filtersSet.setBoxblur(1080, 1920);
-        fFmpegCmd.clear().setInput(temp).setOutput(out).setFilter_complex(filtersSet).run();
+        fFmpegCmd.clear().setInput(temp).setOutput(out).setFilter_complex(filtersSet).run(true);
         try {
             Files.deleteIfExists(Paths.get(temp));
         } catch (Exception e) {
@@ -116,11 +118,6 @@ public class OpenCvBox {
         return image;
     }
 
-    /**
-     * 自动生成新文件名
-     *
-     * @param file：文件路径
-     */
     private String getWriteName(String file) {
         String name = FilesBox.outDirFile(file);
         Output.print(name);
