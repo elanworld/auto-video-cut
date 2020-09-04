@@ -13,7 +13,6 @@ public class FFmpegCmd extends RunBox {
     LinkedHashMap<String, String> cmdMap;
     List<String> inputFiles;
     List<String> cmdList;
-    List<String> finalCmds;
     String cmdLine;
 
     boolean wait = true;
@@ -24,7 +23,6 @@ public class FFmpegCmd extends RunBox {
     }
 
     public void init() {
-        finalCmds = new ArrayList<>();
         cmdMap = new LinkedHashMap<>();
         inputFiles = new ArrayList<>();
         cmdLine = null;
@@ -37,6 +35,11 @@ public class FFmpegCmd extends RunBox {
         cmdMap.replace("overwrite", "-y");
     }
 
+    @Override
+    public void setCmdLine(String cmdLine) {
+        this.cmdLine = cmdLine;
+    }
+
     public void run(boolean clear) {
         run();
         if (clear) {
@@ -44,6 +47,7 @@ public class FFmpegCmd extends RunBox {
         }
     }
 
+    @Override
     public void run() {
         ArrayList<String> cmds = new ArrayList<>();
         for (String cmd : cmdMap.values()) {
@@ -52,8 +56,7 @@ public class FFmpegCmd extends RunBox {
             }
         }
         feasible();
-        cmdLine = String.join(" ", cmds);
-        finalCmds.add(cmdLine);
+        setCmdLine(String.join(" ", cmds));
         runCmd = new RunCmd(cmdLine, 1000, this.wait, this.print);
         if (this.wait) {
             ArrayList<String> error = runCmd.getError();
