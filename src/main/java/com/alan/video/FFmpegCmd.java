@@ -4,30 +4,32 @@ import com.alan.util.RunCmd;
 import com.alan.util.RunBox;
 import com.alan.util.StringContainer;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 
 public class FFmpegCmd extends RunBox {
     String ffmpeg = "ffmpeg";
-    RunCmd runCmd;
+    List<String> cmdList;
     LinkedHashMap<String, String> cmdMap;
     List<String> inputFiles;
-    List<String> cmdList;
     String cmdLine;
+    RunCmd runCmd;
 
     boolean wait = true;
     boolean print = true;
 
     public FFmpegCmd() {
         this.init();
+        this.defaultInit();
     }
 
     public void init() {
         cmdMap = new LinkedHashMap<>();
         inputFiles = new ArrayList<>();
         cmdLine = null;
-        cmdList = new ArrayList<>(Arrays.asList("ffmpeg", "overwrite", "time_off", "input", "crop",
-                "filter_complex", "diyLine", "map", "decode", "output"));
+        cmdList = new ArrayList<>(Arrays.asList("ffmpeg", "overwrite", "hw", "decode", "time_off", "input", "crop",
+                "filter_complex", "diyLine", "map", "codec", "bitrate", "output"));
         for (String cmd : cmdList) {
             cmdMap.put(cmd, null);
         }
@@ -35,20 +37,17 @@ public class FFmpegCmd extends RunBox {
         cmdMap.replace("overwrite", "-y");
     }
 
+    public void defaultInit() {
+        this.new SpecialFormat().setCodecQSV();
+    }
+
     @Override
     public void setCmdLine(String cmdLine) {
         this.cmdLine = cmdLine;
     }
 
-    public void run(boolean clear) {
-        run();
-        if (clear) {
-            clear();
-        }
-    }
 
-    @Override
-    public void run() {
+    public FFmpegCmd runCommand() {
         ArrayList<String> cmds = new ArrayList<>();
         for (String cmd : cmdMap.values()) {
             if (cmd != null) {
@@ -59,12 +58,9 @@ public class FFmpegCmd extends RunBox {
         setCmdLine(String.join(" ", cmds));
         runCmd = new RunCmd(cmdLine, 1000, this.wait, this.print);
         if (this.wait) {
-            ArrayList<String> error = runCmd.getError();
-            error.addAll(runCmd.getOutput());
-            ArrayList<String> noFile = StringContainer.findLine(error, ".*(No such file or directory).*");
-            if (!noFile.isEmpty())
-                throw new RuntimeException("got error: " + noFile.toString());
+            this.new ErrorMatcher().run();
         }
+        return this;
     }
 
     @Override
@@ -103,13 +99,8 @@ public class FFmpegCmd extends RunBox {
         return this;
     }
 
-    public FFmpegCmd setDcode(String codec) {
-        cmdMap.replace("decode", "-c:v " + codec);
-        return this;
-    }
-
-    public FFmpegCmd setDcodeCopy() {
-        cmdMap.replace("decode", "-c copy");
+    public FFmpegCmd setCodec(String codec) {
+        cmdMap.replace("codec", "-c:v " + codec);
         return this;
     }
 
@@ -138,10 +129,27 @@ public class FFmpegCmd extends RunBox {
         return this;
     }
 
-    public FFmpegCmd setFilter_complex(FiltersSet filtersSet) {
-        String filterLine = filtersSet.getFilterLine();
-        cmdMap.replace("filter_complex", filterLine);
-        return this;
+    private class ErrorMatcher {
+        ArrayList<String> out;
+        List<String> errors;
+
+        public ErrorMatcher() {
+            out = runCmd.getError();
+            out.addAll(runCmd.getOutput());
+            errors = new ArrayList<>(Arrays.asList(
+                    "No such file or directory",
+                    "Invalid data found when processing input",
+                    "Conversion failed!"
+                    ));
+        }
+
+        public void run() {
+            for (String error : errors) {
+                ArrayList<String> noFile = StringContainer.findLine(out, ".*(" + error + ").*");
+                if (!noFile.isEmpty())
+                    throw new RuntimeException("got error: " + noFile.toString());
+            }
+        }
     }
 
     /**
@@ -154,6 +162,13 @@ public class FFmpegCmd extends RunBox {
 
         public FiltersSet() {
             filters = new ArrayList<>();
+        }
+
+        public FFmpegCmd toFFmpeg() {
+            String filterLine = "-filter_complex " + String.join(",", filters);
+            filters.clear();
+            cmdMap.replace("filter_complex", filterLine);
+            return FFmpegCmd.this;
         }
 
         private FiltersSet clear() {
@@ -215,10 +230,13 @@ public class FFmpegCmd extends RunBox {
          * @return
          */
         public FiltersSet setSelect(List<List<Double>> timeClips) {
+            DecimalFormat decimalFormat = new DecimalFormat("0.000");
             ArrayList<String> selects = new ArrayList<>();
             String selectJoin;
             for (List<Double> time : timeClips) {
-                String line = String.format("between(t,%s,%s)", time.get(0), time.get(1));
+                String start = decimalFormat.format(time.get(0));
+                String end = decimalFormat.format(time.get(1));
+                String line = String.format("between(t,%s,%s)", start, end);
                 selects.add(line);
             }
             String join = String.join("+", selects);
@@ -236,12 +254,6 @@ public class FFmpegCmd extends RunBox {
         public FiltersSet setCrop(double widthPercent, double heightPercent) {
             filters.add(String.format("crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
             return this;
-        }
-
-        private String getFilterLine() {
-            String filterLine = "-filter_complex " + String.join(",", filters);
-            filters.clear();
-            return filterLine;
         }
     }
 
@@ -364,9 +376,23 @@ public class FFmpegCmd extends RunBox {
 
     public class SpecialFormat {
 
-        public void baiduAipPCM() {
+        public SpecialFormat baiduAipPCM() {
             String pcm = "-acodec pcm_s16le -f s16le -ac 1 -ar 16000";
-            cmdMap.replace("decode", pcm);
+            cmdMap.replace("codec", pcm);
+            return this;
+        }
+
+        /**
+         * set intel qsv codec in order to transform faster than cpu compute
+         *
+         * @return
+         */
+        public SpecialFormat setCodecQSV() {
+            // cmdMap.replace("hw", "-hwaccel qsv");
+            cmdMap.replace("decode", "-c:v h264_qsv");
+            cmdMap.replace("codec", "-c:v h264_qsv");
+            cmdMap.replace("bitrate", "-b:v 20M");
+            return this;
         }
     }
 }

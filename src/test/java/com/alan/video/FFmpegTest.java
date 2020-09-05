@@ -7,8 +7,8 @@ public class FFmpegTest {
     FFmpegCmd fFmpegCmd;
 
     public FFmpegTest() {
-        String input = "F:\\Alan\\Videos\\Mine\\cc.mp4";
-        String output = "F:\\Alan\\Videos\\Mine\\cc1.mp4";
+        String input = "F:\\Alan\\Videos\\Mine\\与我相关\\vlog\\aa.mp4";
+        String output = "F:\\Alan\\Videos\\Mine\\与我相关\\vlog\\bb.mp4";
         fFmpegCmd = new FFmpegCmd();
         fFmpegCmd.setInput(input);
         fFmpegCmd.setOutput(output);
@@ -17,14 +17,19 @@ public class FFmpegTest {
 
 
     public void crop() {
-        fFmpegCmd.setCrop(0.2, 0.2).run();
+        fFmpegCmd.setCrop(0.2, 0.2).runCommand();
     }
 
     public void filter() {
         FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
         filtersSet.setCrop(0.8,1);
-        filtersSet.setBoxblur(1500,1500);
-        fFmpegCmd.setFilter_complex(filtersSet).run();
+        filtersSet.setBoxblur(1500,1500).toFFmpeg().runCommand();
+    }
+
+    @Test
+    public void qsv() {
+        fFmpegCmd.new SpecialFormat().setCodecQSV();
+        fFmpegCmd.runCommand();
     }
 
 }

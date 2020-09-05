@@ -5,10 +5,14 @@ import com.alan.audio.RosaPy4j;
 import com.alan.audio.SoxBox;
 import com.alan.video.FFmpegCmd;
 import com.alan.util.FilesBox;
+import org.apache.http.entity.mime.content.FileBody;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class MainSpeakClipper {
+    String bgmPath = "F:\\Alan\\Music\\AutoCutBGM\\speak";
     boolean noise = false;
 
     RosaPy4j rosaPy4j;
@@ -37,56 +41,54 @@ public class MainSpeakClipper {
         String speakWithBgm = FilesBox.outFile(wav, "speakWithBgm");
         String temp = FilesBox.outFile(file, "temp");
         String speak = FilesBox.outFile(file, "speak");
-        String bgmPath = "F:\\Alan\\Music\\AutoCutBGM\\speak";
-        List<String> cleanFiles = new ArrayList<>(Arrays.asList(good, bad, soxOut,soxOutDnorm ,bgmGenerate, speakWithBgm, temp));
+        List<String> cleanFiles = new ArrayList<>(Arrays.asList(good, bad, soxOut, soxOutDnorm, bgmGenerate, speakWithBgm, temp));
         ArrayList<String> bgms = FilesBox.dictoryListFilter(bgmPath, true, "mp3", "wav", "m4a");
         String bgm = bgms.get(0);
 
         // generate background music to good voice
-        fFmpegCmd.clear().setInput(bgm).setOutput(bgmGenerate);
-        filtersSet.setAudioLoudnorm().setAudioVolumPercent(0.2);
-        fFmpegCmd.setFilter_complex(filtersSet).run();
+        fFmpegCmd.setInput(bgm).setOutput(bgmGenerate);
+        filtersSet.setAudioLoudnorm().setAudioVolumPercent(0.2).toFFmpeg();
+        fFmpegCmd.runCommand().clear();
 
-        // generate good voice without noise
+        // generate speak voice
         fFmpegCmd.clear().setInput(file).setOutput(good);
-        filtersSet.setSelect(speakClips);
-        fFmpegCmd.setFilter_complex(filtersSet).run();
+        filtersSet.setSelect(speakClips).toFFmpeg().runCommand().clear();
 
         if (noise) {
-            filtersSet.setSelect(silenceFromeSpeak);
-            fFmpegCmd.setOutput(bad).setFilter_complex(filtersSet).run();
+            fFmpegCmd.setInput(file).setOutput(bad);
+            filtersSet.setSelect(silenceFromeSpeak).toFFmpeg().runCommand().clear();
             soxBox.noise(bad, good, soxOut);
         } else {
-            filtersSet.setAudioLoudnorm();
-            fFmpegCmd.clear().setInput(good).setOutput(soxOut).setFilter_complex(filtersSet).run();
+            filtersSet.setAudioLoudnorm().toFFmpeg().
+                    setInput(good).setOutput(soxOut).runCommand().clear();
         }
 
-        filtersSet.setAudioLoudnorm().setAudioVolumPercent(1);
-        fFmpegCmd.setInput(soxOut).setOutput(soxOutDnorm).setFilter_complex(filtersSet).run();
+        filtersSet.setAudioLoudnorm().setAudioVolumPercent(1).toFFmpeg().
+                setInput(soxOut).setOutput(soxOutDnorm).runCommand().clear();
 
-        fFmpegCmd.clear().setInput(soxOutDnorm).setInput(bgmGenerate).setOutput(speakWithBgm);
-        filtersSet.setAudioMix();
-        fFmpegCmd.setFilter_complex(filtersSet).run();
+        fFmpegCmd.setInput(soxOutDnorm).setInput(bgmGenerate).setOutput(speakWithBgm);
+        filtersSet.setAudioMix().toFFmpeg().runCommand().clear();
 
         // generate final file
-        fFmpegCmd.clear().setInput(file).setOutput(temp);
-        filtersSet.setSelect(speakClips);
-        fFmpegCmd.setFilter_complex(filtersSet).run();
-        if (fFmpegCmd.isVideo(file))
-            fFmpegCmd.clear().setInput(temp).setInput(speakWithBgm).setOutput(speak).setMap("-map 0:v -map 1:a").run();
-        else
-            fFmpegCmd.clear().setInput(speakWithBgm).setOutput(speak).run();
+        fFmpegCmd.new SpecialFormat().setCodecQSV();
+        fFmpegCmd.setInput(file).setOutput(temp);
+        filtersSet.setSelect(speakClips).toFFmpeg().runCommand().clear();
+
+        fFmpegCmd.new SpecialFormat().setCodecQSV();
+        if (fFmpegCmd.isVideo(file)) {
+            fFmpegCmd.setInput(temp).setInput(speakWithBgm).setOutput(speak).setCodec("copy").setMap("-map 0:v -map 1:a").runCommand();
+        } else
+            fFmpegCmd.setInput(speakWithBgm).setOutput(speak).runCommand();
 
         FilesBox.deleteFiles(cleanFiles);
 
     }
 
     public static void main(String[] args) {
-        String file = "F:\\Alan\\Videos\\Mine\\与我相关\\视频相册\\vlog\\VID_20200826_085711.mp4";
-        file = FilesBox.inputIfNotExists(file);
-        MainSpeakClipper mainSpeakClipper = new MainSpeakClipper();
-        mainSpeakClipper.run(file);
-
-
+        String dir = "F:\\Alan\\Videos\\Mine\\与我相关\\vlog";
+        for (String file : FilesBox.dictoryListFilter(dir, false, "mp4")) {
+            MainSpeakClipper mainSpeakClipper = new MainSpeakClipper();
+            mainSpeakClipper.run(file);
+        }
     }
 }

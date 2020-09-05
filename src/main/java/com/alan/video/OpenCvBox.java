@@ -97,11 +97,11 @@ public class OpenCvBox {
         String out = getWriteName(file);
         if (Files.exists(Paths.get(out)))
             return false;
-        filtersSet.setCrop(0.8, 1);
-        fFmpegCmd.setInput(file).setOutput(temp).setFilter_complex(filtersSet).
-                setTime((float) ((double) start / fps), (float) ((double) end / fps)).run(true);
-        filtersSet.setBoxblur(1080, 1920);
-        fFmpegCmd.clear().setInput(temp).setOutput(out).setFilter_complex(filtersSet).run(true);
+        filtersSet.setCrop(0.8, 1).toFFmpeg();
+        fFmpegCmd.setInput(file).setOutput(temp).
+                setTime((float) ((double) start / fps), (float) ((double) end / fps)).runCommand().clear();
+        filtersSet.setBoxblur(1080, 1920).toFFmpeg();
+        fFmpegCmd.clear().setInput(temp).setOutput(out).runCommand().clear();
         try {
             Files.deleteIfExists(Paths.get(temp));
         } catch (Exception e) {
