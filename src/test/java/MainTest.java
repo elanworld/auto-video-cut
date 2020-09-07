@@ -1,12 +1,22 @@
-import com.alan.Main;
+import com.alan.text.YoudaoTranslation;
 import com.alan.util.Output;
+import com.alan.video.FFmpegCapturer;
 import org.junit.Test;
 
 public class MainTest {
 
 
-    public static void test1() {
-        Main.main(new String[3]);
+    @Test
+    public void translate() {
+        String run = YoudaoTranslation.run("i dont kown who i am");
+        Output.print(run);
+    }
+
+    @Test
+    public void record() {
+        FFmpegCapturer fFmpegCapturer = new FFmpegCapturer();
+        fFmpegCapturer.addLog().addVideoDevice("USB").setOutput("F:\\Alan\\Videos\\Mine\\ffmpeg_record.mp4");
+        fFmpegCapturer.runWithInput();
     }
 
 }

@@ -17,19 +17,21 @@ public class FFmpegTest {
 
 
     public void crop() {
-        fFmpegCmd.setCrop(0.2, 0.2).runCommand();
+        fFmpegCmd.setCrop(0.2, 0.2).run();
     }
 
     public void filter() {
         FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
         filtersSet.setCrop(0.8,1);
-        filtersSet.setBoxblur(1500,1500).toFFmpeg().runCommand();
+        filtersSet.setBoxblur(1500,1500).toFFmpeg().run();
     }
 
-    @Test
+
     public void qsv() {
-        fFmpegCmd.new SpecialFormat().setCodecQSV();
-        fFmpegCmd.runCommand();
+        fFmpegCmd.setCodecQSV();
+        fFmpegCmd.run();
     }
+
+
 
 }

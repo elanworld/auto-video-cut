@@ -1,8 +1,10 @@
 package com.alan.video;
 
+import com.alan.util.Output;
 import com.alan.util.RunCmd;
 import com.alan.util.RunBox;
 import com.alan.util.StringContainer;
+import jnr.ffi.annotations.Out;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -10,26 +12,47 @@ import java.util.*;
 
 public class FFmpegCmd extends RunBox {
     String ffmpeg = "ffmpeg";
-    List<String> cmdList;
-    LinkedHashMap<String, String> cmdMap;
-    List<String> inputFiles;
-    String cmdLine;
-    RunCmd runCmd;
+    List<String> cmdList = new ArrayList<>();
+    LinkedHashMap<String, String> cmdMap = new LinkedHashMap<>();
+    List<String> inputFiles = new ArrayList<>();
+    String cmdLine = null;
+    RunCmd runCmd =null;
+
+    FiltersSet filtersSet = null;
 
     boolean wait = true;
     boolean print = true;
 
     public FFmpegCmd() {
-        this.init();
-        this.defaultInit();
+        this.initCmdList();
+        this.initCmdMap();
+        this.defaultSet();
     }
 
-    public void init() {
-        cmdMap = new LinkedHashMap<>();
-        inputFiles = new ArrayList<>();
-        cmdLine = null;
-        cmdList = new ArrayList<>(Arrays.asList("ffmpeg", "overwrite", "hw", "decode", "time_off", "input", "crop",
+    @Override
+    public FFmpegCmd run() {
+        feasible(); //check all setting if possible
+
+        ArrayList<String> cmds = new ArrayList<>();
+        for (String cmd : cmdMap.values()) {
+            if (cmd != null) {
+                cmds.add(cmd);
+            }
+        }
+        setCmdLine(String.join(" ", cmds));
+        runCmd = new RunCmd(cmdLine, 1000, this.wait, this.print);
+        if (this.wait) {
+            this.new ErrorMatcher().run();
+        }
+        return this;
+    }
+
+    public void initCmdList() {
+        cmdList.addAll(Arrays.asList("ffmpeg", "overwrite", "hw", "decode", "time_off", "input", "crop",
                 "filter_complex", "diyLine", "map", "codec", "bitrate", "output"));
+    }
+
+    public void initCmdMap() {
         for (String cmd : cmdList) {
             cmdMap.put(cmd, null);
         }
@@ -37,30 +60,13 @@ public class FFmpegCmd extends RunBox {
         cmdMap.replace("overwrite", "-y");
     }
 
-    public void defaultInit() {
-        this.new SpecialFormat().setCodecQSV();
+    public void defaultSet() {
+        setCodecQSV();
     }
 
     @Override
     public void setCmdLine(String cmdLine) {
         this.cmdLine = cmdLine;
-    }
-
-
-    public FFmpegCmd runCommand() {
-        ArrayList<String> cmds = new ArrayList<>();
-        for (String cmd : cmdMap.values()) {
-            if (cmd != null) {
-                cmds.add(cmd);
-            }
-        }
-        feasible();
-        setCmdLine(String.join(" ", cmds));
-        runCmd = new RunCmd(cmdLine, 1000, this.wait, this.print);
-        if (this.wait) {
-            this.new ErrorMatcher().run();
-        }
-        return this;
     }
 
     @Override
@@ -104,6 +110,19 @@ public class FFmpegCmd extends RunBox {
         return this;
     }
 
+    /**
+     * set intel qsv codec in order to transform faster than cpu compute
+     *
+     * @return
+     */
+    public FFmpegCmd setCodecQSV() {
+        // cmdMap.replace("hw", "-hwaccel qsv");
+        cmdMap.replace("decode", "-c:v h264_qsv");
+        cmdMap.replace("codec", "-c:v h264_qsv");
+        cmdMap.replace("bitrate", "-b:v 20M");
+        return this;
+    }
+
     public FFmpegCmd setTime(double start, double end) {
         cmdMap.replace("time_off", String.format("-ss %s -to %s", start, end));
         return this;
@@ -125,204 +144,15 @@ public class FFmpegCmd extends RunBox {
     }
 
     public FFmpegCmd clear() {
-        this.init();
+        this.initCmdList();
+        this.initCmdMap();
         return this;
     }
 
-    private class ErrorMatcher {
-        ArrayList<String> out;
-        List<String> errors;
-
-        public ErrorMatcher() {
-            out = runCmd.getError();
-            out.addAll(runCmd.getOutput());
-            errors = new ArrayList<>(Arrays.asList(
-                    "No such file or directory",
-                    "Invalid data found when processing input",
-                    "Conversion failed!"
-                    ));
-        }
-
-        public void run() {
-            for (String error : errors) {
-                ArrayList<String> noFile = StringContainer.findLine(out, ".*(" + error + ").*");
-                if (!noFile.isEmpty())
-                    throw new RuntimeException("got error: " + noFile.toString());
-            }
-        }
-    }
-
-    /**
-     * add filters to a system to manage
-     * just repeat it if filter not set a input or output stream
-     */
-    public class FiltersSet {
-        ArrayList<String> filters;
-        String filterLine = "";
-
-        public FiltersSet() {
-            filters = new ArrayList<>();
-        }
-
-        public FFmpegCmd toFFmpeg() {
-            String filterLine = "-filter_complex " + String.join(",", filters);
-            filters.clear();
-            cmdMap.replace("filter_complex", filterLine);
-            return FFmpegCmd.this;
-        }
-
-        private FiltersSet clear() {
-            filters.clear();
-            return this;
-        }
-
-        public FiltersSet setLine(String diyLine) {
-            filters.add(diyLine);
-            return this;
-        }
-
-        public FiltersSet setAudioMix() {
-            filters.add(String.format("amix=inputs=%s:duration=first:dropout_transition=2", inputFiles.size()));
-            return this;
-        }
-
-        public FiltersSet setAudioPass(int low, int high) {
-            filters.add(String.format("highpass=f=%s,lowpass=f=%s", low, high));
-            return this;
-        }
-
-        public FiltersSet setAudioVolum(double db) {
-            double meanVolume = getInfo().meanVolume;
-            double slip = db - meanVolume;
-            filters.add(String.format("volume=volume=%sdB", slip));
-            return this;
-        }
-
-        public FiltersSet setAudioVolumPercent(double percent) {
-            filters.add(String.format("volume=volume=%s", percent));
-            return this;
-        }
-
-        public FiltersSet setAudioLoudnorm() {
-            filters.add("loudnorm");
-            return this;
-        }
-
-        /**
-         * add new background with glasses blur from origin video
-         *
-         * @param width
-         * @param height
-         * @return
-         */
-        public FiltersSet setBoxblur(double width, double height) {
-            String line = String.format("split=2[a][b];[a]scale=%s:%s,boxblur=20:20[1];" +
-                            "[b]scale=%s:ih*%s/iw[2];[1][2]overlay=0:(H-h)/2 -aspect %d:%d",
-                    width, height, width, width, (int) width, (int) height);
-            filters.add(line);
-            return this;
-        }
-
-        /**
-         * select mult clips to one output
-         *
-         * @param timeClips
-         * @return
-         */
-        public FiltersSet setSelect(List<List<Double>> timeClips) {
-            DecimalFormat decimalFormat = new DecimalFormat("0.000");
-            ArrayList<String> selects = new ArrayList<>();
-            String selectJoin;
-            for (List<Double> time : timeClips) {
-                String start = decimalFormat.format(time.get(0));
-                String end = decimalFormat.format(time.get(1));
-                String line = String.format("between(t,%s,%s)", start, end);
-                selects.add(line);
-            }
-            String join = String.join("+", selects);
-            String output = cmdMap.get("output");
-            if (output == null)
-                throw new RuntimeException("please set output first");
-            if (isVideo(output))
-                selectJoin = String.format("select='%s',setpts=N/FRAME_RATE/TB;aselect='%s',asetpts=N/SR/TB", join, join);
-            else
-                selectJoin = String.format("aselect='%s',asetpts=N/SR/TB", join);
-            filters.add(selectJoin);
-            return this;
-        }
-
-        public FiltersSet setCrop(double widthPercent, double heightPercent) {
-            filters.add(String.format("crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
-            return this;
-        }
-    }
-
-    private class Metadata {
-        double width, height;
-        double duration;
-        double rate;
-        double meanVolume;
-
-
-        public double getRate() {
-            return rate;
-        }
-
-        public double getMeanVolume() {
-            return meanVolume;
-        }
-
-        public void setMeanVolume(double meanVolume) {
-            this.meanVolume = meanVolume;
-        }
-
-        public void setRate(double rate) {
-            this.rate = rate;
-        }
-
-        public double getWidth() {
-            return width;
-        }
-
-        public void setWidth(double width) {
-            this.width = width;
-        }
-
-        public double getHeight() {
-            return height;
-        }
-
-        public void setHeight(double height) {
-            this.height = height;
-        }
-
-        public double getDuration() {
-            return duration;
-        }
-
-        public void setDuration(double duration) {
-            this.duration = duration;
-        }
-
-        @Override
-        public String toString() {
-            return "Metadata{" +
-                    "width=" + width +
-                    ", height=" + height +
-                    ", duration=" + duration +
-                    ", rate=" + rate +
-                    ", meanVolume=" + meanVolume +
-                    '}';
-        }
-    }
-
-    private void feasible() {
-        if (cmdMap.get("dcode") != null && cmdMap.get("crop") != null) {
-            throw new RuntimeException("can`t set crop and dcode together!");
-        }
-        if (cmdMap.get("input") == null) {
-            throw new RuntimeException("did`t set any input file");
-        }
+    public FiltersSet getFiltersSet() {
+        if (filtersSet == null)
+            this.new FiltersSet();
+        return filtersSet;
     }
 
     private Metadata getInfo() {
@@ -365,7 +195,7 @@ public class FFmpegCmd extends RunBox {
     public Boolean isVideo(String file) {
         ArrayList<String> types = new ArrayList<String>(Arrays.asList("mp4", "avi", "mkv"));
         if (file == null)
-            throw new RuntimeException("please set input before this");
+            return false;
         for (String type : types) {
             if (file.matches(".*" + type + ".*"))
                 return true;
@@ -373,26 +203,182 @@ public class FFmpegCmd extends RunBox {
         return false;
     }
 
+    /**
+     * check the command feasible
+     * change  to correct if possible
+     */
+    private void feasible() {
+        Metadata metadata = new Metadata();
+        if (!isVideo(cmdMap.get(metadata.output))) {
+            cmdMap.remove(metadata.decode);
+            cmdMap.remove(metadata.codec);
+            cmdMap.remove(metadata.bitrate);
+        }
+        if (cmdMap.get("codec") != null && cmdMap.get("crop") != null) {
+            throw new RuntimeException("can`t set crop and codec together!");
+        }
+    }
 
-    public class SpecialFormat {
+    private class ErrorMatcher {
+        ArrayList<String> out;
+        List<String> errors;
 
-        public SpecialFormat baiduAipPCM() {
-            String pcm = "-acodec pcm_s16le -f s16le -ac 1 -ar 16000";
-            cmdMap.replace("codec", pcm);
+        public ErrorMatcher() {
+            out = runCmd.getError();
+            out.addAll(runCmd.getOutput());
+            errors = new ArrayList<>(Arrays.asList(
+                    "No such file or directory",
+                    "Invalid data found when processing input",
+                    "Conversion failed!"
+            ));
+        }
+
+        public void run() {
+            for (String error : errors) {
+                ArrayList<String> noFile = StringContainer.findLine(out, ".*(" + error + ").*");
+                if (!noFile.isEmpty())
+                    throw new RuntimeException("got error: " + noFile.toString());
+            }
+        }
+    }
+
+    /**
+     * add filters to a system to manage
+     * just repeat it if filter not set a input or output stream
+     */
+    public class FiltersSet {
+        ArrayList<String> filters;
+        String filterLine = "";
+
+        public FiltersSet() {
+            filters = new ArrayList<>();
+        }
+
+        /**
+         * apply all filter setting
+         *
+         * @return
+         */
+        public FFmpegCmd toFFmpeg() {
+            String filterLine = "-filter_complex " + String.join(",", filters);
+            filters.clear();
+            cmdMap.replace("filter_complex", filterLine);
+            return FFmpegCmd.this;
+        }
+
+        private FiltersSet clear() {
+            filters.clear();
+            return this;
+        }
+
+        public FiltersSet setLine(String diyLine) {
+            filters.add(diyLine);
             return this;
         }
 
         /**
-         * set intel qsv codec in order to transform faster than cpu compute
+         * mix first audio to the second,first audio is bgm ,request input file first
          *
          * @return
          */
-        public SpecialFormat setCodecQSV() {
-            // cmdMap.replace("hw", "-hwaccel qsv");
-            cmdMap.replace("decode", "-c:v h264_qsv");
-            cmdMap.replace("codec", "-c:v h264_qsv");
-            cmdMap.replace("bitrate", "-b:v 20M");
+        public FiltersSet setAudioMix() {
+            filters.add(String.format("aloop=loop=3:size=2e+09,amix=inputs=%s:duration=shortest:dropout_transition=2", inputFiles.size()));
             return this;
+        }
+
+        public FiltersSet setAudioPass(int low, int high) {
+            filters.add(String.format("highpass=f=%s,lowpass=f=%s", low, high));
+            return this;
+        }
+
+        public FiltersSet setAudioVolum(double db) {
+            double meanVolume = getInfo().meanVolume;
+            double slip = db - meanVolume;
+            filters.add(String.format("volume=volume=%sdB", slip));
+            return this;
+        }
+
+        public FiltersSet setAudioVolumPercent(double percent) {
+            filters.add(String.format("volume=volume=%s", percent));
+            return this;
+        }
+
+        public FiltersSet setAudioLoudnorm() {
+            filters.add("loudnorm");
+            return this;
+        }
+
+        /**
+         * add new background with glasses blur from origin video
+         *
+         * @param width
+         * @param height
+         * @return
+         */
+        public FiltersSet setBoxblur(double width, double height) {
+            String line = String.format("split=2[a][b];[a]scale=%s:%s,boxblur=20:20[1];" +
+                            "[b]scale=%s:ih*%s/iw[2];[1][2]overlay=0:(H-h)/2 -aspect %d:%d",
+                    width, height, width, width, (int) width, (int) height);
+            filters.add(line);
+            return this;
+        }
+
+        /**
+         * select mult clips to one output
+         * request out files first
+         *
+         * @param timeClips
+         * @return
+         */
+        public FiltersSet setSelect(List<List<Double>> timeClips) {
+            DecimalFormat decimalFormat = new DecimalFormat("0.000");
+            ArrayList<String> selects = new ArrayList<>();
+            String selectJoin;
+            for (List<Double> time : timeClips) {
+                String start = decimalFormat.format(time.get(0));
+                String end = decimalFormat.format(time.get(1));
+                String line = String.format("between(t,%s,%s)", start, end);
+                selects.add(line);
+            }
+            String join = String.join("+", selects);
+            String output = cmdMap.get("output");
+            if (output == null)
+                throw new RuntimeException("please set output first");
+            if (isVideo(output))
+                selectJoin = String.format("select='%s',setpts=N/FRAME_RATE/TB;aselect='%s',asetpts=N/SR/TB", join, join);
+            else
+                selectJoin = String.format("aselect='%s',asetpts=N/SR/TB", join);
+            filters.add(selectJoin);
+            return this;
+        }
+
+        public FiltersSet setCrop(double widthPercent, double heightPercent) {
+            filters.add(String.format("crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
+            return this;
+        }
+    }
+
+    private class Metadata {
+        double width, height;
+        double duration;
+        double rate;
+        double meanVolume;
+
+        String input = "input";
+        String output = "output";
+        String decode = "decode";
+        String codec = "codec";
+        String bitrate = "bitrate";
+
+        @Override
+        public String toString() {
+            return "Metadata{" +
+                    "width=" + width +
+                    ", height=" + height +
+                    ", duration=" + duration +
+                    ", rate=" + rate +
+                    ", meanVolume=" + meanVolume +
+                    '}';
         }
     }
 }

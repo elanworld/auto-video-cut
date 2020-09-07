@@ -32,7 +32,7 @@ public class MainAudioRing {
             if (new File(outFile).exists()) {
                 continue;
             }
-            fFmpegCmd.setInput(file).setOutput(outFile).setTime(start, start + 30).runCommand();
+            fFmpegCmd.setInput(file).setOutput(outFile).setTime(start, start + 30).run();
         }
     }
 }
