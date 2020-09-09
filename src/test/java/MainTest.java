@@ -12,7 +12,6 @@ public class MainTest {
         Output.print(run);
     }
 
-    @Test
     public void record() {
         FFmpegCapturer fFmpegCapturer = new FFmpegCapturer();
         fFmpegCapturer.addLog().addVideoDevice("USB").setOutput("F:\\Alan\\Videos\\Mine\\ffmpeg_record.mp4");

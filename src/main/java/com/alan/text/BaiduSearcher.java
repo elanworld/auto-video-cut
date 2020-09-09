@@ -7,7 +7,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.URL;
 
 public class BaiduSearcher extends HttpBox {
     String link = "http://www.baidu.com/s?wd=";
@@ -17,7 +16,6 @@ public class BaiduSearcher extends HttpBox {
         String link = "http://www.baidu.com/s?wd=" + word;
         html = get(link);
     }
-
 
     public void searchByJsoup(String word) throws Exception{
         Document document = Jsoup.connect(link+word).get();
