@@ -6,7 +6,6 @@ import org.junit.Test;
 public class MainTest {
 
 
-    @Test
     public void translate() {
         String run = YoudaoTranslation.run("i dont kown who i am");
         Output.print(run);
@@ -17,5 +16,6 @@ public class MainTest {
         fFmpegCapturer.addLog().addVideoDevice("USB").setOutput("F:\\Alan\\Videos\\Mine\\ffmpeg_record.mp4");
         fFmpegCapturer.runWithInput();
     }
+
 
 }

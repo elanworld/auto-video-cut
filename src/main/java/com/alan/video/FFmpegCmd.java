@@ -356,6 +356,12 @@ public class FFmpegCmd extends RunBox {
             filters.add(String.format("crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
             return this;
         }
+
+        public FiltersSet setSubtitle(String file) {
+            // todo
+            // ffmpeg -y -i aa.mp4 -filter_complex \"subtitles=filename=my.srt:force_style='Fontsize=24'\" bb.mp4
+            return this;
+        }
     }
 
     private class Metadata {
