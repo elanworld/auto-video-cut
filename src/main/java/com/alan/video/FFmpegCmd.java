@@ -1,10 +1,8 @@
 package com.alan.video;
 
-import com.alan.util.Output;
 import com.alan.util.RunCmd;
 import com.alan.util.RunBox;
 import com.alan.util.StringContainer;
-import jnr.ffi.annotations.Out;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -16,9 +14,10 @@ public class FFmpegCmd extends RunBox {
     LinkedHashMap<String, String> cmdMap = new LinkedHashMap<>();
     List<String> inputFiles = new ArrayList<>();
     String cmdLine = null;
-    RunCmd runCmd =null;
+    RunCmd runCmd = null;
 
     FiltersSet filtersSet = null;
+    SpecialFormat specialFormat = null;
 
     boolean wait = true;
     boolean print = true;
@@ -146,13 +145,20 @@ public class FFmpegCmd extends RunBox {
     public FFmpegCmd clear() {
         this.initCmdList();
         this.initCmdMap();
+        this.inputFiles.clear();
         return this;
     }
 
     public FiltersSet getFiltersSet() {
         if (filtersSet == null)
-            this.new FiltersSet();
+            filtersSet = new FiltersSet();
         return filtersSet;
+    }
+
+    public SpecialFormat getSpecialFormat() {
+        if (specialFormat == null)
+            specialFormat = new SpecialFormat();
+        return specialFormat;
     }
 
     private Metadata getInfo() {
@@ -193,7 +199,7 @@ public class FFmpegCmd extends RunBox {
     }
 
     public Boolean isVideo(String file) {
-        ArrayList<String> types = new ArrayList<String>(Arrays.asList("mp4", "avi", "mkv"));
+        ArrayList<String> types = new ArrayList<>(Arrays.asList("mp4", "avi", "mkv"));
         if (file == null)
             return false;
         for (String type : types) {
@@ -259,8 +265,8 @@ public class FFmpegCmd extends RunBox {
          *
          * @return
          */
-        public FFmpegCmd toFFmpeg() {
-            String filterLine = "-filter_complex " + String.join(",", filters);
+        public FFmpegCmd toFFmpegCmd() {
+            String filterLine = String.format("-filter_complex \"%s\"", String.join(",", filters));
             filters.clear();
             cmdMap.replace("filter_complex", filterLine);
             return FFmpegCmd.this;
@@ -309,21 +315,6 @@ public class FFmpegCmd extends RunBox {
         }
 
         /**
-         * add new background with glasses blur from origin video
-         *
-         * @param width
-         * @param height
-         * @return
-         */
-        public FiltersSet setBoxblur(double width, double height) {
-            String line = String.format("split=2[a][b];[a]scale=%s:%s,boxblur=20:20[1];" +
-                            "[b]scale=%s:ih*%s/iw[2];[1][2]overlay=0:(H-h)/2 -aspect %d:%d",
-                    width, height, width, width, (int) width, (int) height);
-            filters.add(line);
-            return this;
-        }
-
-        /**
          * select mult clips to one output
          * request out files first
          *
@@ -358,8 +349,40 @@ public class FFmpegCmd extends RunBox {
         }
 
         public FiltersSet setSubtitle(String file) {
-            // todo
-            // ffmpeg -y -i aa.mp4 -filter_complex \"subtitles=filename=my.srt:force_style='Fontsize=24'\" bb.mp4
+            file = file.replace("\\", "/").replace(":", "\\:");
+            filters.add(String.format("subtitles=filename='%s':force_style='Fontsize=%s'", file, 24));
+            return this;
+        }
+    }
+
+    public class SpecialFormat {
+
+        public FFmpegCmd toFFmpegCmd() {
+            return FFmpegCmd.this;
+        }
+
+
+        /**
+         * add new background with glasses blur from origin video
+         *
+         * @param width
+         * @param height
+         * @return
+         */
+        public SpecialFormat setBoxblur(double width, double height) {
+            FiltersSet filtersSet = getFiltersSet();
+            String line = String.format("split=2[a][b];[a]scale=%s:%s,boxblur=20:20[1];" +
+                            "[b]scale=%s:ih*%s/iw[2];[1][2]overlay=0:(H-h)/2",
+                    width, height, width, width);
+            filtersSet.filters.add(line);
+            filtersSet.toFFmpegCmd();
+            this.toFFmpegCmd().setMap(String.format("-aspect %d:%d", (int) width, (int) height));
+            return this;
+        }
+
+        public SpecialFormat baiduAipPCM() {
+            String pcm = "-acodec pcm_s16le -f s16le -ac 1 -ar 16000";
+            cmdMap.replace("codec", pcm);
             return this;
         }
     }

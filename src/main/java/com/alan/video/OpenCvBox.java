@@ -2,6 +2,7 @@ package com.alan.video;
 
 import com.alan.ai.AiBaseTarget;
 import com.alan.photo.ImagePHash;
+import com.alan.text.SubtitleBox;
 import com.alan.util.FilesBox;
 import com.alan.util.Output;
 
@@ -16,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class OpenCvBox {
     static {
@@ -27,14 +29,16 @@ public class OpenCvBox {
     double duration;
     double count;
     Size frameSize = new Size();
+    SubtitleBox subtitleBox;
 
     //need to defile
     double splitHeight = 0.3;
-    double small = 15;
-    double big = 35;
+    double small = 7;
+    double big = 8;
 
     public OpenCvBox() {
         Output.setLog(false);
+        subtitleBox = new SubtitleBox();
     }
 
     public void recognition(String file) {
@@ -92,22 +96,39 @@ public class OpenCvBox {
     }
 
     private boolean clipper(String file, FFmpegCmd fFmpegCmd, int start, int end) {
+        double tStart =  start / fps;
+        double tEnd = end / fps;
         FFmpegCmd.FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
         String temp = getWriteName(file);
         String out = getWriteName(file);
+
         if (Files.exists(Paths.get(out)))
             return false;
-        filtersSet.setCrop(0.8, 1).toFFmpeg().setInput(file).setOutput(temp).setCodecQSV()
-                .setTime((float) ((double) start / fps), (float) ((double) end / fps)).run().clear();
-        filtersSet.setBoxblur(1080, 1920).toFFmpeg()
-                .setInput(temp).setOutput(out).run().clear();
+        // out subtitle
+        String srtOut = out.replace(".mp4", ".srt");
+        boolean exist = subtitleClip(file, srtOut, tStart, tEnd);
+
+        filtersSet.setCrop(0.8, 1).toFFmpegCmd().setInput(file).setOutput(temp).setCodecQSV()
+                .setTime(tStart, tEnd).run().clear();
+        if (exist)
+            filtersSet.setSubtitle(srtOut);
+        fFmpegCmd.getSpecialFormat().setBoxblur(1080,1920).toFFmpegCmd()
+                .setInput(temp).setOutput(out).setCodecQSV().run().clear();
         try {
             Files.deleteIfExists(Paths.get(temp));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return true;
+    }
 
+    private boolean subtitleClip(String file, String srtOut, double start ,double end) {
+        String srt = file.replace(".mp4", ".srt");
+        if (!Paths.get(srt).toFile().exists())
+            return false;
+        subtitleBox.init(srt);
+        List<String> byFilter = subtitleBox.getByFilter(false, true, true, start, end);
+        return subtitleBox.write(byFilter,srtOut);
     }
 
     private static BufferedImage mat2BufferedImage(Mat matrix) throws Exception {
@@ -118,7 +139,6 @@ public class OpenCvBox {
     }
 
     private String getWriteName(String file) {
-        String name = FilesBox.outDirFile(file);
-        return name;
+        return FilesBox.outDirFile(file);
     }
 }

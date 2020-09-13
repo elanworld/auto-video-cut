@@ -3,6 +3,7 @@ package com.alan.text;
 import java.util.List;
 
 public interface SubtitleBoxInterface {
-    void split(String path,List<List<Double>> timeClips);
-
+    List<String> getClip(double start, double end);
+    List<String> getEnglish();
+    List<String> getChinese();
 }

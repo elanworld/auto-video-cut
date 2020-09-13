@@ -44,31 +44,31 @@ public class MainSpeakClipper {
 
         // generate background music to good voice
         fFmpegCmd.setInput(bgm).setOutput(bgmGenerate);
-        filtersSet.setAudioLoudnorm().setAudioVolumPercent(0.2).toFFmpeg();
+        filtersSet.setAudioLoudnorm().setAudioVolumPercent(0.2).toFFmpegCmd();
         fFmpegCmd.run().clear();
 
         // generate speak voice
         fFmpegCmd.clear().setInput(file).setOutput(good);
-        filtersSet.setSelect(speakClips).toFFmpeg().run().clear();
+        filtersSet.setSelect(speakClips).toFFmpegCmd().run().clear();
 
         if (noise) {
             fFmpegCmd.setInput(file).setOutput(bad);
-            filtersSet.setSelect(silenceFromeSpeak).toFFmpeg().run().clear();
+            filtersSet.setSelect(silenceFromeSpeak).toFFmpegCmd().run().clear();
             soxBox.noise(bad, good, soxOut);
         } else {
-            filtersSet.setAudioLoudnorm().toFFmpeg().
+            filtersSet.setAudioLoudnorm().toFFmpegCmd().
                     setInput(good).setOutput(soxOut).run().clear();
         }
 
-        filtersSet.setAudioLoudnorm().setAudioVolumPercent(1).toFFmpeg().
+        filtersSet.setAudioLoudnorm().setAudioVolumPercent(1).toFFmpegCmd().
                 setInput(soxOut).setOutput(soxOutDnorm).run().clear();
 
         fFmpegCmd.setInput(bgmGenerate).setInput(soxOutDnorm).setOutput(speakWithBgm);
-        filtersSet.setAudioMix().toFFmpeg().run().clear();
+        filtersSet.setAudioMix().toFFmpegCmd().run().clear();
 
         // generate final file
         fFmpegCmd.setCodecQSV().setInput(file).setOutput(temp);
-        filtersSet.setSelect(speakClips).toFFmpeg().run().clear();
+        filtersSet.setSelect(speakClips).toFFmpegCmd().run().clear();
 
         fFmpegCmd.setCodecQSV();
         if (fFmpegCmd.isVideo(file)) {
