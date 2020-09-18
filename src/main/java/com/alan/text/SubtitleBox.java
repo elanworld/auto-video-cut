@@ -1,6 +1,7 @@
 package com.alan.text;
 
 import com.alan.util.FilesBox;
+import com.alan.util.Output;
 import com.alan.util.StringContainer;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class SubtitleBox implements SubtitleBoxInterface {
     @Override
     public List<String> getClip(double start, double end) {
         ArrayList<String> subtitles = new ArrayList<>();
-        List<SubtitleBody> filters = filters(subtitleBodies, true, true, true, start, end);
+        List<SubtitleBody> filters = filters(subtitleBodies, true, true, true, start, end ,0);
         for (SubtitleBody body : filters) {
             subtitles.add(body.toBody());
         }
@@ -24,7 +25,7 @@ public class SubtitleBox implements SubtitleBoxInterface {
     @Override
     public List<String> getEnglish() {
         ArrayList<String> subtitles = new ArrayList<>();
-        List<SubtitleBody> filters = filters(subtitleBodies, false, true, false, 0, 0);
+        List<SubtitleBody> filters = filters(subtitleBodies, false, true, false, 0, 0, 0);
         for (SubtitleBody body : filters) {
             subtitles.add(body.toBody());
         }
@@ -34,7 +35,7 @@ public class SubtitleBox implements SubtitleBoxInterface {
     @Override
     public List<String> getChinese() {
         ArrayList<String> subtitles = new ArrayList<>();
-        List<SubtitleBody> filters = filters(subtitleBodies, true, false, false, 0, 0);
+        List<SubtitleBody> filters = filters(subtitleBodies, true, false, false, 0, 0, 0);
         for (SubtitleBody body : filters) {
             subtitles.add(body.toBody());
         }
@@ -49,8 +50,9 @@ public class SubtitleBox implements SubtitleBoxInterface {
     private List<SubtitleBody> read(String file) {
         ArrayList<String> reader = FilesBox.reader(file);
         List<SubtitleBody> subtitleBodies = new ArrayList<>();
+        String timeFormat = "(\\d+):(\\d+):(\\d+),(\\d+)";
         Pattern num = Pattern.compile("^(\\d{1,4})$");
-        Pattern time = Pattern.compile("(\\d+):(\\d+):(\\d+),(\\d+) --> (\\d+):(\\d+):(\\d+),(\\d+)");
+        Pattern time = Pattern.compile(String.format("%s --> %s", timeFormat, timeFormat));
         SubtitleBody subtitleBody = new SubtitleBody();
         for (String line : reader) {
             Matcher numMt = num.matcher(line);
@@ -71,8 +73,8 @@ public class SubtitleBox implements SubtitleBoxInterface {
                 int m1 = Integer.parseInt(timeMt.group(6));
                 int s1 = Integer.parseInt(timeMt.group(7));
                 int ms1 = Integer.parseInt(timeMt.group(8));
-                double start = h * 60 * 60 + m * 60 + s + ms / 60.0;
-                double end = h1 * 60 * 60 + m1 * 60 + s1 + ms1 / 60.0;
+                double start = h * 60 * 60 + m * 60 + s + ms / 1000.0;
+                double end = h1 * 60 * 60 + m1 * 60 + s1 + ms1 / 1000.0;
                 subtitleBody.setStart(start);
                 subtitleBody.setEnd(end);
             }
@@ -87,12 +89,17 @@ public class SubtitleBox implements SubtitleBoxInterface {
         return StringContainer.checkChinese(word);
     }
 
-    public SubtitleBody filter(SubtitleBody subtitleBody, boolean chinese, boolean english, boolean clip, double start, double end) {
+    public SubtitleBody filter(SubtitleBody subtitleBody, boolean chinese, boolean english,
+                               boolean clip, double start, double end, double delay) {
         if (clip) {
             if (subtitleBody.start >= start & subtitleBody.end <= end) {
             } else {
                 return null;
             }
+        }
+        if (delay != 0) {
+            subtitleBody.setStart(subtitleBody.getStart() + delay);
+            subtitleBody.setEnd(subtitleBody.getEnd() + delay);
         }
         List<String> text = subtitleBody.text;
         for (int i = text.size() - 1; i > -1; i--) {
@@ -108,20 +115,21 @@ public class SubtitleBox implements SubtitleBoxInterface {
         return subtitleBody;
     }
 
-    public List<SubtitleBody> filters(List<SubtitleBody> bodies,
-                                      boolean chinese, boolean english, boolean clip, double start, double end) {
+    public List<SubtitleBody> filters(List<SubtitleBody> bodies, boolean chinese, boolean english,
+                                      boolean clip, double start, double end, double delay) {
         ArrayList<SubtitleBody> newBodies = new ArrayList<>();
         for (SubtitleBody body : bodies) {
-            SubtitleBody filter = filter(body, chinese, english, clip, start, end);
+            SubtitleBody filter = filter(body, chinese, english, clip, start, end, delay);
             if (filter != null)
                 newBodies.add(filter);
         }
         return newBodies;
     }
 
-    public List<String> getByFilter(boolean chinese, boolean english, boolean clip, double start, double end) {
+    public List<String> getByFilter(boolean chinese, boolean english,
+                                    boolean clip, double start, double end, double delay) {
         ArrayList<String> subtitles = new ArrayList<>();
-        List<SubtitleBody> filters = filters(subtitleBodies, chinese, english, clip, start, end);
+        List<SubtitleBody> filters = filters(subtitleBodies, chinese, english, clip, start, end ,delay);
         for (SubtitleBody body : filters) {
             subtitles.add(body.toBody());
         }
@@ -131,8 +139,16 @@ public class SubtitleBox implements SubtitleBoxInterface {
     public boolean write(List<String> subtitle, String file) {
         if (subtitle.isEmpty())
             return false;
-        FilesBox.writer(subtitle,file);
+        FilesBox.writer(subtitle, file);
         return true;
+    }
+
+    public List<SubtitleBody> delay(double time) {
+        for (SubtitleBody subtitleBody : subtitleBodies) {
+            subtitleBody.setStart(subtitleBody.getStart() + time);
+            subtitleBody.setEnd(subtitleBody.getEnd() + time);
+        }
+        return subtitleBodies;
     }
 
 }

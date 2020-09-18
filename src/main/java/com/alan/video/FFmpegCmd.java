@@ -348,6 +348,23 @@ public class FFmpegCmd extends RunBox {
             return this;
         }
 
+        /**
+         * add new background with glasses blur from origin video
+         * warming :replaced map
+         *
+         * @param width
+         * @param height
+         * @return
+         */
+        public FiltersSet setBoxblur(double width, double height) {
+            String line = String.format("split=2[a][b];[a]scale=%s:%s,boxblur=20:20[1];" +
+                            "[b]scale=%s:ih*%s/iw[2];[1][2]overlay=0:(H-h)/2",
+                    width, height, width, width);
+            filters.add(line);
+            FFmpegCmd.this.setMap(String.format("-aspect %d:%d", (int) width, (int) height));
+            return this;
+        }
+
         public FiltersSet setSubtitle(String file) {
             file = file.replace("\\", "/").replace(":", "\\:");
             filters.add(String.format("subtitles=filename='%s':force_style='Fontsize=%s'", file, 24));
@@ -357,28 +374,6 @@ public class FFmpegCmd extends RunBox {
 
     public class SpecialFormat {
 
-        public FFmpegCmd toFFmpegCmd() {
-            return FFmpegCmd.this;
-        }
-
-
-        /**
-         * add new background with glasses blur from origin video
-         *
-         * @param width
-         * @param height
-         * @return
-         */
-        public SpecialFormat setBoxblur(double width, double height) {
-            FiltersSet filtersSet = getFiltersSet();
-            String line = String.format("split=2[a][b];[a]scale=%s:%s,boxblur=20:20[1];" +
-                            "[b]scale=%s:ih*%s/iw[2];[1][2]overlay=0:(H-h)/2",
-                    width, height, width, width);
-            filtersSet.filters.add(line);
-            filtersSet.toFFmpegCmd();
-            this.toFFmpegCmd().setMap(String.format("-aspect %d:%d", (int) width, (int) height));
-            return this;
-        }
 
         public SpecialFormat baiduAipPCM() {
             String pcm = "-acodec pcm_s16le -f s16le -ac 1 -ar 16000";

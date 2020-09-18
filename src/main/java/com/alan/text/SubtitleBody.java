@@ -2,7 +2,6 @@ package com.alan.text;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SubtitleBody implements Serializable, Cloneable {

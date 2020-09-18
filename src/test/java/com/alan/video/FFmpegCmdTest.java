@@ -12,7 +12,7 @@ public class FFmpegCmdTest {
     public void filter() {
         FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
         filtersSet.setCrop(0.8,1);
-        filtersSet.toFFmpegCmd().getSpecialFormat().setBoxblur(1920,1280).toFFmpegCmd().run();
+        filtersSet.toFFmpegCmd().getFiltersSet().setBoxblur(1920,1280).toFFmpegCmd().run();
     }
 
 

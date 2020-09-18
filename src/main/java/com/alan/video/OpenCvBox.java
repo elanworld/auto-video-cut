@@ -33,8 +33,8 @@ public class OpenCvBox {
 
     //need to defile
     double splitHeight = 0.3;
-    double small = 7;
-    double big = 8;
+    double small = 15;
+    double big = 35;
 
     public OpenCvBox() {
         Output.setLog(false);
@@ -112,10 +112,13 @@ public class OpenCvBox {
                 .setTime(tStart, tEnd).run().clear();
         if (exist)
             filtersSet.setSubtitle(srtOut);
-        fFmpegCmd.getSpecialFormat().setBoxblur(1080,1920).toFFmpegCmd()
+        filtersSet.setBoxblur(1080,1920).toFFmpegCmd()
                 .setInput(temp).setOutput(out).setCodecQSV().run().clear();
         try {
             Files.deleteIfExists(Paths.get(temp));
+            if (exist) {
+                Files.deleteIfExists(Paths.get(srtOut));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -127,7 +130,7 @@ public class OpenCvBox {
         if (!Paths.get(srt).toFile().exists())
             return false;
         subtitleBox.init(srt);
-        List<String> byFilter = subtitleBox.getByFilter(false, true, true, start, end);
+        List<String> byFilter = subtitleBox.getByFilter(true, false, true, start, end, -start);
         return subtitleBox.write(byFilter,srtOut);
     }
 
