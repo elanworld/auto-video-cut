@@ -68,8 +68,6 @@ public class AudioContainer {
             time.add(clips.get(i + 1).get(0));
             silences.add(time);
         }
-        if (silences.isEmpty())
-            throw new RuntimeException("get 0 clip");
         return silences;
     }
 

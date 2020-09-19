@@ -1,5 +1,6 @@
 package com.alan.video;
 
+import com.alan.util.Output;
 import com.alan.util.RunCmd;
 import com.alan.util.RunBox;
 import com.alan.util.StringContainer;
@@ -214,12 +215,6 @@ public class FFmpegCmd extends RunBox {
      * change  to correct if possible
      */
     private void feasible() {
-        Metadata metadata = new Metadata();
-        if (!isVideo(cmdMap.get(metadata.output))) {
-            cmdMap.remove(metadata.decode);
-            cmdMap.remove(metadata.codec);
-            cmdMap.remove(metadata.bitrate);
-        }
         if (cmdMap.get("codec") != null && cmdMap.get("crop") != null) {
             throw new RuntimeException("can`t set crop and codec together!");
         }
@@ -242,8 +237,10 @@ public class FFmpegCmd extends RunBox {
         public void run() {
             for (String error : errors) {
                 ArrayList<String> noFile = StringContainer.findLine(out, ".*(" + error + ").*");
-                if (!noFile.isEmpty())
+                if (!noFile.isEmpty()) {
+                    Output.print(cmdLine);
                     throw new RuntimeException("got error: " + noFile.toString());
+                }
             }
         }
     }

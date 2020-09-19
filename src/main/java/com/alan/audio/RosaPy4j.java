@@ -48,8 +48,9 @@ public class RosaPy4j {
             // throw new RuntimeException(e.getMessage());
         }
         clientServer.shutdown();
-        if (clips == null)
+        if (clips == null) {
             throw new RuntimeException("fail to get audio time clips from python connection");
+        }
         return clips;
     }
 }
