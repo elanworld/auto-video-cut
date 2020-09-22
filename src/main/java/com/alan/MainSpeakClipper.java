@@ -70,9 +70,9 @@ public class MainSpeakClipper {
         fFmpegCmd.setCodecQSV().setInput(file).setOutput(temp);
         filtersSet.setSelect(speakClips).toFFmpegCmd().run().clear();
 
-        fFmpegCmd.setCodecQSV();
+        // fFmpegCmd.setCodecQSV();  memory leaks
         if (fFmpegCmd.isVideo(file)) {
-            fFmpegCmd.setInput(temp).setInput(speakWithBgm).setOutput(speak).setMap("-map 0:v -map 1:a").run();
+            fFmpegCmd.setInput(temp).setInput(speakWithBgm).setOutput(speak).setCodec("copy").setMap("-map 0:v -map 1:a").run();
         } else {
             fFmpegCmd.setInput(speakWithBgm).setOutput(speak).run();
         }
