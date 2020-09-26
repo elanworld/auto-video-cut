@@ -2,10 +2,12 @@ package com.alan.video;
 
 import com.alan.ai.AiBaseTarget;
 import com.alan.photo.ImagePHash;
+import com.alan.system.LogBox;
 import com.alan.text.SubtitleBox;
 import com.alan.util.FilesBox;
 import com.alan.util.Output;
 
+import org.apache.log4j.Logger;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
@@ -30,6 +32,8 @@ public class OpenCvBox {
     double count;
     Size frameSize = new Size();
     SubtitleBox subtitleBox;
+    Logger logger;
+
 
     //need to defile
     double splitHeight = 0.3;
@@ -38,6 +42,7 @@ public class OpenCvBox {
 
     public OpenCvBox() {
         Output.setLog(false);
+        logger = LogBox.getLogger();
         subtitleBox = new SubtitleBox();
     }
 
@@ -108,12 +113,16 @@ public class OpenCvBox {
         String srtOut = out.replace(".mp4", ".srt");
         boolean exist = subtitleClip(file, srtOut, tStart, tEnd);
 
+        logger.info("start cut crop video");
         filtersSet.setCrop(0.8, 1).toFFmpegCmd().setInput(file).setOutput(temp).setCodecQSV()
                 .setTime(tStart, tEnd).run().clear();
-        if (exist)
+        if (exist) {
             filtersSet.setSubtitle(srtOut);
+        }
+        logger.info("start apply blur filter");
         filtersSet.setBoxblur(1080,1920).toFFmpegCmd()
-                .setInput(temp).setOutput(out).setCodecQSV().run().clear();
+                .setInput(temp).setOutput(out).run().clear();
+        logger.info("apply blur filter success");
         try {
             Files.deleteIfExists(Paths.get(temp));
             if (exist) {

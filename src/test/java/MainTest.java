@@ -7,9 +7,10 @@ public class MainTest {
 
 
     public void translate() {
-        String run = YoudaoTranslation.run("i dont kown who i am");
+        String run = YoudaoTranslation.run("i don`t know who i am");
         Output.print(run);
     }
+
 
     public void record() {
         FFmpegCapturer fFmpegCapturer = new FFmpegCapturer();

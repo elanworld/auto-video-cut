@@ -67,7 +67,7 @@ public class MainSpeakClipper {
         filtersSet.setAudioMix().toFFmpegCmd().run().clear();
 
         // generate final file
-        fFmpegCmd.setCodecQSV().setInput(file).setOutput(temp);
+        fFmpegCmd.setInput(file).setOutput(temp);
         filtersSet.setSelect(speakClips).toFFmpegCmd().run().clear();
 
         // fFmpegCmd.setCodecQSV();  memory leaks
