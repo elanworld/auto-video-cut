@@ -1,24 +1,43 @@
 package com.alan.audio;
 
 import com.alan.util.FilesBox;
-import com.alan.util.Output;
-import com.alan.util.RunCmd;
+import com.alan.util.RunCommand;
+import com.alan.util.RunReceiver;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-public class SoxBox {
-    String sox = "cmd /c sox";
+public class SoxBox implements RunCommand {
+    String sox = "sox";
+    String cmdLine;
+    private RunReceiver runReceiver;
+    Set<String> clearBox = new LinkedHashSet<>();
 
-    public SoxBox noise(String noise, String file, String outFile) {
-        String prof = FilesBox.outDirFile(file) + ".prof";
+    public List<String> noiseProf(String inputFile, String noise, String outFile) {
+        String prof = FilesBox.outExt(noise, "prof");
+        clearBox.add(prof);
         String cmd = String.format("%s %s -n noiseprof %s", sox, noise, prof);
-        new RunCmd(cmd);
-        cmd = String.format("%s %s %s noisered %s 0.21", sox, file, outFile, prof);
-        new RunCmd(cmd);
-        for (String f : new String[]{prof}) {
+        String cmd1 = String.format("%s %s %s noisered %s 0.21", sox, inputFile, outFile, prof);
+        return Arrays.asList(cmd,cmd1);
+    }
+
+    public void clearFiles() {
+        for (String f : clearBox) {
             Paths.get(f).toFile().delete();
         }
-        return this;
+    }
+
+    public void execute() {
+        runReceiver = new RunReceiver();
+        runReceiver.setCommand(cmdLine);
+        runReceiver.run();
+    }
+
+    @Override
+    public void setCmdLine(String cmdLine) {
+        this.cmdLine = cmdLine;
     }
 }

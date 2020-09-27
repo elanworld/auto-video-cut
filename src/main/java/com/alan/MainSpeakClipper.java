@@ -21,6 +21,7 @@ public class MainSpeakClipper {
         rosaPy4j = new RosaPy4j();
         audioContainer = new AudioContainer();
         fFmpegCmd = new FFmpegCmd();
+        fFmpegCmd.setKeepAlive(10000);
         soxBox = new SoxBox();
     }
 
@@ -54,7 +55,11 @@ public class MainSpeakClipper {
         if (noise) {
             fFmpegCmd.setInput(file).setOutput(bad);
             filtersSet.setSelect(silenceFromeSpeak).toFFmpegCmd().run().clear();
-            soxBox.noise(bad, good, soxOut);
+            List<String> cmd = soxBox.noiseProf(bad, good, soxOut);
+            soxBox.setCmdLine(cmd.get(0));
+            soxBox.execute();
+            soxBox.setCmdLine(cmd.get(1));
+            soxBox.execute();
         } else {
             filtersSet.setAudioLoudnorm().toFFmpegCmd().
                     setInput(good).setOutput(soxOut).run().clear();
@@ -67,7 +72,7 @@ public class MainSpeakClipper {
         filtersSet.setAudioMix().toFFmpegCmd().run().clear();
 
         // generate final file
-        fFmpegCmd.setInput(file).setOutput(temp);
+        fFmpegCmd.setInput(file).setOutput(temp).setCodecQSV();
         filtersSet.setSelect(speakClips).toFFmpegCmd().run().clear();
 
         // fFmpegCmd.setCodecQSV();  memory leaks
@@ -78,7 +83,6 @@ public class MainSpeakClipper {
         }
 
         FilesBox.deleteFiles(cleanFiles);
-
     }
 
     public static void main(String[] args) {

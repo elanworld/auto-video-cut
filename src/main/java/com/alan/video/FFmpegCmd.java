@@ -2,14 +2,14 @@ package com.alan.video;
 
 import com.alan.util.Output;
 import com.alan.util.RunCmd;
-import com.alan.util.RunBox;
+import com.alan.util.RunCommand;
 import com.alan.util.StringContainer;
 
 import java.text.DecimalFormat;
 import java.util.*;
 
 
-public class FFmpegCmd extends RunBox {
+public class FFmpegCmd implements RunCommand {
     String ffmpeg = "ffmpeg";
     List<String> cmdList = new ArrayList<>();
     LinkedHashMap<String, String> cmdMap = new LinkedHashMap<>();
@@ -21,6 +21,7 @@ public class FFmpegCmd extends RunBox {
     SpecialFormat specialFormat = null;
 
     boolean wait = true;
+    int keepAlive = 100;
     boolean print = true;
 
     public FFmpegCmd() {
@@ -29,7 +30,6 @@ public class FFmpegCmd extends RunBox {
         this.defaultSet();
     }
 
-    @Override
     public FFmpegCmd run() {
         feasible(); //check all setting if possible
 
@@ -40,11 +40,18 @@ public class FFmpegCmd extends RunBox {
             }
         }
         setCmdLine(String.join(" ", cmds));
-        runCmd = new RunCmd(cmdLine, 1000, this.wait, this.print);
+
+        runCmd = new RunCmd(cmdLine, keepAlive, this.wait, this.print);
         if (this.wait) {
             this.new ErrorMatcher().run();
         }
         return this;
+    }
+
+    public List<String> getResult() {
+        ArrayList<String> output = runCmd.getOutput();
+        output.addAll(runCmd.getError());
+        return output;
     }
 
     public void initCmdList() {
@@ -70,10 +77,8 @@ public class FFmpegCmd extends RunBox {
     }
 
     @Override
-    public List<String> getResult() {
-        ArrayList<String> output = runCmd.getOutput();
-        output.addAll(runCmd.getError());
-        return output;
+    public void execute() {
+
     }
 
     public void setting(boolean wait, boolean print) {
@@ -208,6 +213,30 @@ public class FFmpegCmd extends RunBox {
                 return true;
         }
         return false;
+    }
+
+    public boolean isWait() {
+        return wait;
+    }
+
+    public void setWait(boolean wait) {
+        this.wait = wait;
+    }
+
+    public int getKeepAlive() {
+        return keepAlive;
+    }
+
+    public void setKeepAlive(int keepAlive) {
+        this.keepAlive = keepAlive;
+    }
+
+    public boolean isPrint() {
+        return print;
+    }
+
+    public void setPrint(boolean print) {
+        this.print = print;
     }
 
     /**
