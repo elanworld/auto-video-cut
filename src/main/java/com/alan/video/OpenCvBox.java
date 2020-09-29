@@ -42,7 +42,7 @@ public class OpenCvBox {
 
     public OpenCvBox() {
         Output.setLog(false);
-        logger = LogBox.getLogger();
+        logger = LogBox.getLog4j();
         subtitleBox = new SubtitleBox();
     }
 
