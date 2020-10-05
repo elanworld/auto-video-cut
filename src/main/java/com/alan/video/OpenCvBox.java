@@ -2,7 +2,6 @@ package com.alan.video;
 
 import com.alan.ai.AiBaseTarget;
 import com.alan.photo.ImagePHash;
-import com.alan.system.LogBox;
 import com.alan.text.SubtitleBox;
 import com.alan.util.FilesBox;
 import com.alan.util.Output;
@@ -42,8 +41,8 @@ public class OpenCvBox {
 
     public OpenCvBox() {
         Output.setLog(false);
-        logger = LogBox.getLog4j();
         subtitleBox = new SubtitleBox();
+        logger = Logger.getLogger(this.getClass());
     }
 
     public void recognition(String file) {
@@ -66,11 +65,11 @@ public class OpenCvBox {
         String currentHash = null;
         int start = 0;
         int end = 0;
-        for (int i = 0; i < (int) count; i++) {
+        for (int i = 1; i < (int) count; i++) {
             end += 1;
             videoCapture.read(mat);
             lastHash = currentHash;
-            float like = -1;
+            float like;
             try {
                 currentHash = imagePHash.getHash(mat2BufferedImage(mat));
                 if (lastHash == null) {
@@ -100,7 +99,7 @@ public class OpenCvBox {
         videoWriter.open(getWriteName(file), (int) fourcc, fps, frameSize);
     }
 
-    private boolean clipper(String file, FFmpegCmd fFmpegCmd, int start, int end) {
+    private void clipper(String file, FFmpegCmd fFmpegCmd, int start, int end) {
         double tStart =  start / fps;
         double tEnd = end / fps;
         FFmpegCmd.FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
@@ -108,7 +107,7 @@ public class OpenCvBox {
         String out = getWriteName(file);
 
         if (Files.exists(Paths.get(out)))
-            return false;
+            return;
         // out subtitle
         String srtOut = out.replace(".mp4", ".srt");
         boolean exist = subtitleClip(file, srtOut, tStart, tEnd);
@@ -131,7 +130,6 @@ public class OpenCvBox {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return true;
     }
 
     private boolean subtitleClip(String file, String srtOut, double start ,double end) {
@@ -146,8 +144,7 @@ public class OpenCvBox {
     private static BufferedImage mat2BufferedImage(Mat matrix) throws Exception {
         MatOfByte mob = new MatOfByte();
         Imgcodecs.imencode(".jpg", matrix, mob);
-        BufferedImage image = ImageIO.read(new ByteArrayInputStream(mob.toArray()));
-        return image;
+        return ImageIO.read(new ByteArrayInputStream(mob.toArray()));
     }
 
     private String getWriteName(String file) {
