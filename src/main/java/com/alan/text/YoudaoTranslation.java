@@ -1,6 +1,6 @@
 package com.alan.text;
 
-import com.alan.util.StringContainer;
+import com.alan.util.StringBox;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -48,7 +48,7 @@ public class YoudaoTranslation {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        ArrayList<String> line = StringContainer.findLine(new ArrayList<String>(Arrays.asList(wordResult)),
+        List<String> line = StringBox.findGroup(new ArrayList<String>(Arrays.asList(wordResult)),
                 ".*\"translation\":.\"(.*?)\".,.*");
         wordResult = line.get(0);
         return wordResult;

@@ -2,7 +2,7 @@ package com.alan.audio;
 
 import com.alan.util.Output;
 import com.alan.util.RunCmd;
-import com.alan.util.StringContainer;
+import com.alan.util.StringBox;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -43,7 +43,7 @@ public class AudioContainer {
         RunCmd runCmd = new RunCmd(cmd);
         ArrayList<String> outError = runCmd.getError();
         String regex = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
-        ArrayList<String> found = StringContainer.findLine(outError, regex);
+        List<String> found = StringBox.findGroup(outError, regex);
         int h = Integer.decode(found.get(0));
         int m = Integer.decode(found.get(1));
         int s = Integer.decode(found.get(2));

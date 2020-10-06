@@ -3,7 +3,7 @@ package com.alan.video;
 import com.alan.util.Output;
 import com.alan.util.RunCmd;
 import com.alan.util.RunCommand;
-import com.alan.util.StringContainer;
+import com.alan.util.StringBox;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -178,7 +178,7 @@ public class FFmpegCmd implements RunCommand {
         ArrayList<String> outError = runCmd.getError();
         //get duration
         String regex = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
-        ArrayList<String> found = StringContainer.findLine(outError, regex);
+        List<String> found = StringBox.findGroup(outError, regex);
         if (found.size() > 0) {
             int h = Integer.parseInt(found.get(0));
             int m = Integer.parseInt(found.get(1));
@@ -189,7 +189,7 @@ public class FFmpegCmd implements RunCommand {
         //get size
         // regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+) fps,.*";
         regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+).(\\d+) fps,.*";
-        found = StringContainer.findLine(outError, regex);
+        found = StringBox.findGroup(outError, regex);
         if (found.size() > 0) {
             metadata.width = Integer.parseInt(found.get(0));
             metadata.height = Integer.parseInt(found.get(1));
@@ -197,7 +197,7 @@ public class FFmpegCmd implements RunCommand {
         }
 
         regex = ".*mean_volume: (.*) dB.*";
-        found = StringContainer.findLine(outError, regex);
+        found = StringBox.findGroup(outError, regex);
         if (found.size() > 0) {
             metadata.meanVolume = Double.parseDouble(found.get(0));
         }
@@ -265,7 +265,7 @@ public class FFmpegCmd implements RunCommand {
 
         public void run() {
             for (String error : errors) {
-                ArrayList<String> noFile = StringContainer.findLine(out, ".*(" + error + ").*");
+                List<String> noFile = StringBox.findGroup(out, ".*(" + error + ").*");
                 if (!noFile.isEmpty()) {
                     Output.print(cmdLine);
                     throw new RuntimeException("got error: " + noFile.toString());

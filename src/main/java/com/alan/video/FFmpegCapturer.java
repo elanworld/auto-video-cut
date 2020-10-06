@@ -1,7 +1,7 @@
 package com.alan.video;
 
 import com.alan.util.RunCmd;
-import com.alan.util.StringContainer;
+import com.alan.util.StringBox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public class FFmpegCapturer extends FFmpegCmd {
         }
         setCmdLine(String.join(" ", cmds));
         runCmd = new RunCmd(cmdLine, 3600, false, this.print);
-        runCmd.input(StringContainer.input());
+        runCmd.input(StringBox.input());
         return this;
     }
 
@@ -93,7 +93,7 @@ public class FFmpegCapturer extends FFmpegCmd {
             setCmdMap(cmdInfo.format, "-list_devices true -f dshow -i dummy");
             run();
             List<String> result = getResult();
-            devices = StringContainer.findLine(result, "\\[.*\\] *(.*) *");
+            devices = StringBox.findGroup(result, "\\[.*\\] *(.*) *");
         }
 
         public String getDevice(String regex) {

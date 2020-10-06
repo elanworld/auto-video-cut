@@ -1,8 +1,7 @@
 package com.alan.text;
 
 import com.alan.util.FilesBox;
-import com.alan.util.Output;
-import com.alan.util.StringContainer;
+import com.alan.util.StringBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +85,7 @@ public class SubtitleBox implements SubtitleBoxInterface {
     }
 
     private boolean checkChinese(String word) {
-        return StringContainer.checkChinese(word);
+        return StringBox.checkChinese(word);
     }
 
     public SubtitleBody filter(SubtitleBody subtitleBody, boolean chinese, boolean english,

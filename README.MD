@@ -13,3 +13,6 @@ auto cut video to a clip what save climax of oringin vidweo file
 #更新
 1.处理任务变复杂，处理时间减慢未视频长度5倍（忽略：电脑处理，视性能而定）
 2.MainSpeakClipper：录音场景下说话片段识别选取。
+3.MainBulletVideo:更具数据库中弹幕资源筛选剪切合成视频。
+4.MainAudioRing:铃声高潮批量生成。
+5.MainSilence:sox ai去除背景噪音。
