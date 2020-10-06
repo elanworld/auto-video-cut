@@ -2,8 +2,7 @@ package com.alan.text;
 
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.Arrays;
 
 public class BulletTest {
     @Test
@@ -14,11 +13,8 @@ public class BulletTest {
     @Test
     public void getData() {
         BulletBox bulletBox = new BulletBox();
-        List<List<Object>> result = bulletBox.getBullet("打开方式");
-        System.out.println(result);
-        HashMap<Integer, HashMap<Long, List<String>>> integerHashMapHashMap = bulletBox.getByEpisode(result);
-        HashMap<Integer, HashMap<Long, Integer>> bulletNum = bulletBox.getBulletNum(integerHashMapHashMap);
-        List<HashMap<Integer, Long>> hashMaps = bulletBox.sortedNum(bulletNum);
-        System.out.println(hashMaps);
+        bulletBox.setKeyWord("哈哈哈");
+        bulletBox.setEpisodes(Arrays.asList(1,3,5,9));
+        System.out.println(bulletBox.getClip());
     }
 }
