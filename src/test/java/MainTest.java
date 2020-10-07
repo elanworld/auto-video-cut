@@ -1,13 +1,12 @@
-import com.alan.text.YoudaoTranslation;
+import com.alan.text.Translator;
 import com.alan.util.Output;
 import com.alan.video.FFmpegCapturer;
-import org.junit.Test;
 
 public class MainTest {
 
 
     public void translate() {
-        String run = YoudaoTranslation.run("i don`t know who i am");
+        String run = new Translator().run("i don`t know who i am");
         Output.print(run);
     }
 

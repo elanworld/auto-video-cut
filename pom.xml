@@ -62,11 +62,6 @@
             <artifactId>log4j</artifactId>
             <version>1.2.17</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>4.5</version>
-        </dependency>
         <!--sphinx 语音识别-->
         <dependency>
             <groupId>edu.cmu.sphinx</groupId>
