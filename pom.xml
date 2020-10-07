@@ -41,26 +41,21 @@
             <artifactId>org.json</artifactId>
             <version>chargebee-1.0</version>
         </dependency>
-
         <!--        讯飞语音识别本地包-->
-        <dependency>
+        <!--<dependency>
             <groupId>com.iflytek.msp.lfasr</groupId>
             <artifactId>lfasr-sdk</artifactId>
             <version>3.0.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/resources/lib/lfasr-sdk-3.0.0.jar</systemPath>
-        </dependency>
+        </dependency>-->
         <!--讯飞第三方依赖包-->
+        <!--fastjson-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.67</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
         </dependency>
         <!--sphinx 语音识别-->
         <dependency>

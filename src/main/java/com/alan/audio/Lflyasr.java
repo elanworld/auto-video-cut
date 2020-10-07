@@ -1,5 +1,5 @@
 package com.alan.audio;
-
+/**
 import com.alan.util.Output;
 import com.iflytek.msp.lfasr.LfasrClient;
 import com.iflytek.msp.lfasr.model.Message;
@@ -66,3 +66,4 @@ public class Lflyasr {
     }
 
 }
+**/

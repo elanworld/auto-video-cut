@@ -1,4 +1,4 @@
-package com.alan.audio;
+package com.alan.ai;
 
 import java.io.File;
 import java.io.FileInputStream;
