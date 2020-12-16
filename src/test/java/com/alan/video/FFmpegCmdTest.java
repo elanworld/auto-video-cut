@@ -1,7 +1,6 @@
 package com.alan.video;
 
 import com.alan.video.FFmpegCmd.FiltersSet;
-import org.junit.Test;
 
 public class FFmpegCmdTest {
     String input = "F:\\Alan\\Videos\\Mine\\aa.mp4";
@@ -11,8 +10,8 @@ public class FFmpegCmdTest {
 
     public void filter() {
         FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
-        filtersSet.setCrop(0.8,1);
-        filtersSet.toFFmpegCmd().getFiltersSet().setBoxblur(1920,1280).toFFmpegCmd().run();
+        filtersSet.setCrop(0.8, 1);
+        filtersSet.toFFmpegCmd().getFiltersSet().setBoxblur(1920, 1280).toFFmpegCmd().run();
     }
 
 
@@ -21,19 +20,18 @@ public class FFmpegCmdTest {
         fFmpegCmd.run();
     }
 
-    public void crop () {
+    public void crop() {
         String file = "F:\\Alan\\Videos\\Mine\\New Best Zach King Magic.mp4";
         String output = "F:\\Alan\\Videos\\Mine\\New.mp4";
         FFmpegCmd fFmpegCmd = new FFmpegCmd();
-        fFmpegCmd.setInput(file).setOutput(output).setCrop(0.5625,1);
+        fFmpegCmd.setInput(file).setOutput(output).setCrop(0.5625, 1);
         fFmpegCmd.run();
     }
 
-    @Test
+
     public void subtitle() {
         fFmpegCmd.setInput(input).setOutput(output).getFiltersSet().setSubtitle(sub).toFFmpegCmd().run();
     }
-
 
 
 }
