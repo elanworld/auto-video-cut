@@ -9,7 +9,7 @@
         <artifactId>java-projects</artifactId>
         <groupId>com.alan</groupId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>..</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <repositories>
         <repository>
