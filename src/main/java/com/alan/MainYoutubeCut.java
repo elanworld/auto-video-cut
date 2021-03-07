@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.alan.system.SystemPath;
 import com.alan.text.SubtitleBox;
-import com.alan.text.Translator;
+import com.alan.text.baudu.BaiduTranslator;
 import com.alan.util.FilesBox;
 import com.alan.video.FFmpegCmd;
 
@@ -24,7 +24,7 @@ public class MainYoutubeCut {
 	public static void main(String[] args) {
 		FFmpegCmd fFmpegCmd = new FFmpegCmd();
 		SubtitleBox sub = new SubtitleBox();
-		Translator translator = new Translator();
+		BaiduTranslator translator = new BaiduTranslator();
 		List<String> mp4 = FilesBox.dictoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4");
 		List<String> srt = FilesBox.dictoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
 		for (String m : mp4) {
@@ -37,13 +37,12 @@ public class MainYoutubeCut {
 			if (srt.stream().anyMatch(n -> n.equals(s))) {
 				sub.init(s);
 				sub.forEach(n -> {
-					String str = translator.run(String.join(",", n.getText()));
+					String str = translator.main(String.join(",", n.getText()), true);
 					n.getText().add(str);
 				});
 				sub.write(sub.getAll(), ns);
 				fFmpegCmd.setInput(m).setOutput(out).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
 			}
-
 		}
 
 	}
