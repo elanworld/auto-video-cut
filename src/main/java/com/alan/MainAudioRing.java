@@ -16,7 +16,7 @@ public class MainAudioRing {
 		if (!outDir.exists()) {
 			outDir.mkdir();
 		}
-		List<String> strings = FilesBox.dictoryList(dir);
+		List<String> strings = FilesBox.directoryList(dir);
 		for (String file : strings) {
 			Output.print(file);
 			AudioContainer audioContainer = new AudioContainer();

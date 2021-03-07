@@ -43,7 +43,7 @@ public class MainSpeakClipper {
 		String speak = FilesBox.outFile(file, "speak");
 		List<String> cleanFiles = new ArrayList<>(
 				Arrays.asList(good, bad, soxOut, soxOutDnorm, bgmGenerate, speakWithBgm, temp));
-		List<String> bgms = FilesBox.dictoryListFilter(bgmPath, true, "mp3", "wav", "m4a");
+		List<String> bgms = FilesBox.directoryListFilter(bgmPath, true, "mp3", "wav", "m4a");
 		String bgm = bgms.get(0);
 
 		// generate background music to good voice
@@ -84,13 +84,12 @@ public class MainSpeakClipper {
 		} else {
 			fFmpegCmd.setInput(speakWithBgm).setOutput(speak).run();
 		}
-
-		FilesBox.deleteFiles(cleanFiles);
+		cleanFiles.forEach(FilesBox::deleteFiles);
 	}
 
 	public static void main(String[] args) {
 		String dir = "F:\\Alan\\Videos\\Mine\\与我相关\\vlog";
-		for (String file : FilesBox.dictoryListFilter(dir, false, "")) {
+		for (String file : FilesBox.directoryListFilter(dir, false, "")) {
 			MainSpeakClipper mainSpeakClipper = new MainSpeakClipper();
 			mainSpeakClipper.run(file);
 		}

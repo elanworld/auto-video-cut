@@ -25,8 +25,8 @@ public class MainYoutubeCut {
 		FFmpegCmd fFmpegCmd = new FFmpegCmd();
 		SubtitleBox sub = new SubtitleBox();
 		BaiduTranslator translator = new BaiduTranslator();
-		List<String> mp4 = FilesBox.dictoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4");
-		List<String> srt = FilesBox.dictoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
+		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4");
+		List<String> srt = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
 		for (String m : mp4) {
 			File file = new File(m);
 			String name = file.getName();
