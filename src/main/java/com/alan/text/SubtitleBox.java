@@ -17,9 +17,21 @@ import com.alan.util.StringBox;
 public class SubtitleBox implements SubtitleBoxInterface {
 	List<SubtitleBody> subtitleBodies;
 
-	public List<String> getSubtitleBodies() {
+	/**
+	 * 初始化
+	 *
+	 * @param file
+	 * @return
+	 */
+	public SubtitleBox init(String file) {
+		subtitleBodies = read(file);
+		return this;
+	}
+
+	@Override
+	public List<String> getAll() {
 		ArrayList<String> subtitles = new ArrayList<>();
-		List<SubtitleBody> filters = filters(subtitleBodies, true, true, true, 0, 0, 0);
+		List<SubtitleBody> filters = filters(subtitleBodies, true, true, false, 0, 0, 0);
 		for (SubtitleBody body : filters) {
 			subtitles.add(body.toBody());
 		}
@@ -56,17 +68,6 @@ public class SubtitleBox implements SubtitleBoxInterface {
 		return subtitles;
 	}
 
-	/**
-	 * 初始化
-	 *
-	 * @param file
-	 * @return
-	 */
-	public SubtitleBox init(String file) {
-		subtitleBodies = read(file);
-		return this;
-	}
-
 	public void forEach(Consumer<SubtitleBody> consumer) {
 		subtitleBodies.forEach(consumer);
 	}
@@ -76,34 +77,36 @@ public class SubtitleBox implements SubtitleBoxInterface {
 		List<SubtitleBody> subtitleBodies = new ArrayList<>();
 		String timeFormat = "(\\d+):(\\d+):(\\d+),(\\d+)";
 		Pattern num = Pattern.compile("^(\\d{1,4})$");
-		Pattern time = Pattern.compile("(\\d+):(\\d+):(\\d+),(\\d+).*-->.*(\\d+):(\\d+):(\\d+),(\\d+)");
+		Pattern time = Pattern.compile(String.format("%s.*-->.*%s", timeFormat, timeFormat));
 		SubtitleBody subtitleBody = new SubtitleBody();
 		for (String line : reader) {
-			Matcher numMt = num.matcher(line);
-			Matcher timeMt = time.matcher(line);
-			boolean nFind = numMt.find();
-			boolean tFind = timeMt.find();
-			if (nFind) {
+			Matcher numMat = num.matcher(line);
+			Matcher timeMat = time.matcher(line);
+			boolean isNum = numMat.find();
+			boolean isTime = timeMat.find();
+			if (isNum) {
 				subtitleBodies.add(subtitleBody.clone());
 				subtitleBody.init();
-				subtitleBody.setNum(Integer.parseInt(numMt.group(1)));
+				subtitleBody.setNum(Integer.parseInt(numMat.group(1)));
 			}
-			if (tFind) {
-				int h = Integer.parseInt(timeMt.group(1));
-				int m = Integer.parseInt(timeMt.group(2));
-				int s = Integer.parseInt(timeMt.group(3));
-				int ms = Integer.parseInt(timeMt.group(4));
-				int h1 = Integer.parseInt(timeMt.group(5));
-				int m1 = Integer.parseInt(timeMt.group(6));
-				int s1 = Integer.parseInt(timeMt.group(7));
-				int ms1 = Integer.parseInt(timeMt.group(8));
+			if (isTime) {
+				int h = Integer.parseInt(timeMat.group(1));
+				int m = Integer.parseInt(timeMat.group(2));
+				int s = Integer.parseInt(timeMat.group(3));
+				int ms = Integer.parseInt(timeMat.group(4));
+				int h1 = Integer.parseInt(timeMat.group(5));
+				int m1 = Integer.parseInt(timeMat.group(6));
+				int s1 = Integer.parseInt(timeMat.group(7));
+				int ms1 = Integer.parseInt(timeMat.group(8));
 				double start = h * 60 * 60 + m * 60 + s + ms / 1000.0;
 				double end = h1 * 60 * 60 + m1 * 60 + s1 + ms1 / 1000.0;
 				subtitleBody.setStart(start);
 				subtitleBody.setEnd(end);
 			}
-			if ((!nFind & !tFind)) {
-				subtitleBody.addText(line);
+			if ((!isNum & !isTime)) {
+				if (!line.equals("")) {
+					subtitleBody.addText(line);
+				}
 			}
 		}
 		return subtitleBodies;
@@ -116,8 +119,7 @@ public class SubtitleBox implements SubtitleBoxInterface {
 	public SubtitleBody filter(SubtitleBody subtitleBody, boolean chinese, boolean english, boolean clip, double start,
 			double end, double delay) {
 		if (clip) {
-			if (subtitleBody.start >= start & subtitleBody.end <= end) {
-			} else {
+			if (subtitleBody.start < start || subtitleBody.end > end) {
 				return null;
 			}
 		}
@@ -179,6 +181,10 @@ public class SubtitleBox implements SubtitleBoxInterface {
 			subtitleBody.setStart(subtitleBody.getStart() + time);
 			subtitleBody.setEnd(subtitleBody.getEnd() + time);
 		}
+		return subtitleBodies;
+	}
+
+	public List<SubtitleBody> getSubtitleBodies() {
 		return subtitleBodies;
 	}
 

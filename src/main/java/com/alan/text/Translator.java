@@ -12,7 +12,7 @@ import com.alan.web.ApacheHttpBox;
 public class Translator {
 	private static final String API_URL = "https://openapi.youdao.com/api";
 	private static final String APP_KEY = "6c842a4c5eb6d2fd";
-	private static final String APP_SECRET = "VVAZy4KaE30pf80P4SCMJn4M1Bih0BNH";
+	private static final String APP_SECRET = "ZwB1YbaIaqBchv8FdR7VU8rGBnkYQrXU";
 
 	ApacheHttpBox apacheHttpBox = new ApacheHttpBox();
 
@@ -32,25 +32,25 @@ public class Translator {
 		params.put("sign", sign);
 		String content = apacheHttpBox.post(this.API_URL, params);
 		String translation = getTranslation(content);
-		Output.print("translation:", translation);
+		Output.print("translation:", word, translation);
 		return translation;
 	}
 
 	/**
 	 * 生成加密字段
 	 */
-	public static String getDigest(String string) {
+	private static String getDigest(String string) {
 		if (string == null) {
 			return null;
 		}
-		char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+		char hexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 		byte[] btInput = string.getBytes(StandardCharsets.UTF_8);
 		try {
 			MessageDigest mdInst = MessageDigest.getInstance("SHA-256");
 			mdInst.update(btInput);
 			byte[] md = mdInst.digest();
 			int j = md.length;
-			char[] str = new char[j * 2];
+			char str[] = new char[j * 2];
 			int k = 0;
 			for (byte byte0 : md) {
 				str[k++] = hexDigits[byte0 >>> 4 & 0xf];

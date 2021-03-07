@@ -37,10 +37,10 @@ public class MainYoutubeCut {
 			if (srt.stream().anyMatch(n -> n.equals(s))) {
 				sub.init(s);
 				sub.forEach(n -> {
-					String str = translator.run(String.join("\n", n.getText()));
+					String str = translator.run(String.join(",", n.getText()));
 					n.getText().add(str);
 				});
-				sub.write(sub.getSubtitleBodies(), ns);
+				sub.write(sub.getAll(), ns);
 				fFmpegCmd.setInput(m).setOutput(out).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
 			}
 
