@@ -59,10 +59,8 @@ public class MainSpeakClipper {
 			fFmpegCmd.setInput(file).setOutput(bad);
 			filtersSet.setSelect(silenceFromeSpeak).toFFmpegCmd().run().clear();
 			List<String> cmd = soxBox.noiseProf(bad, good, soxOut);
-			soxBox.setCmdLine(cmd.get(0));
-			soxBox.execute();
-			soxBox.setCmdLine(cmd.get(1));
-			soxBox.execute();
+			soxBox.run(cmd.get(0));
+			soxBox.run(cmd.get(1));
 		} else {
 			filtersSet.setAudioLoudnorm().toFFmpegCmd().setInput(good).setOutput(soxOut).run().clear();
 		}
