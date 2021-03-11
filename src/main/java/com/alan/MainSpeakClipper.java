@@ -36,7 +36,7 @@ public class MainSpeakClipper {
 		List<List<Double>> silenceFromeSpeak = audioContainer.getSilenceFromeSpeak(speakClips);
 		FFmpegCmd.FiltersSet filtersSet = fFmpegCmd.new FiltersSet();
 
-		String wav = FilesBox.outExt(file, "wav");
+		String wav = FilesBox.changeExt(file, "wav");
 		String good = FilesBox.outFile(wav, "good");
 		String bad = FilesBox.outFile(wav, "bad");
 		String soxOut = FilesBox.outFile(wav, "soxOut");

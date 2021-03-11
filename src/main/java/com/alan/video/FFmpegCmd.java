@@ -22,7 +22,6 @@ public class FFmpegCmd extends RunCmd {
 	public FFmpegCmd() {
 		this.initCmdList();
 		this.initCmdMap();
-		this.defaultSet();
 	}
 
 	@Override
@@ -50,10 +49,6 @@ public class FFmpegCmd extends RunCmd {
 		}
 		cmdMap.replace(FFmpegEnum.ffmpeg, ffmpeg);
 		cmdMap.replace(FFmpegEnum.overwrite, "-y");
-	}
-
-	public void defaultSet() {
-		setCodecQSV();
 	}
 
 	/**
@@ -92,10 +87,10 @@ public class FFmpegCmd extends RunCmd {
 	 * @return
 	 */
 	public FFmpegCmd setCodecQSV() {
-		// cmdMap.replace("hw", "-hwaccel qsv");
+		double rate = getInfo().rate;
 		cmdMap.replace(FFmpegEnum.decode, "-c:v h264_qsv");
 		cmdMap.replace(FFmpegEnum.codec, "-c:v h264_qsv");
-		cmdMap.replace(FFmpegEnum.bitrate, "-b:v 20M");
+		cmdMap.replace(FFmpegEnum.bitrate, String.format("-b:v %sK", (int) rate));
 		return this;
 	}
 
@@ -155,16 +150,17 @@ public class FFmpegCmd extends RunCmd {
 
 	private Metadata getInfo() {
 		Metadata metadata = new Metadata();
-		String file = cmdMap.get("input");
+		String file = cmdMap.get(FFmpegEnum.input);
 		if (file == null) {
 			throw new RuntimeException("please set input file first");
 		}
 		String cmd = String.format("ffmpeg %s -filter_complex volumedetect -f null -", file);
 		RunCmd runCmd = new RunCmd(cmd);
-		ArrayList<String> outError = runCmd.getError();
+		ArrayList<String> out = runCmd.getError();
+		out.addAll(runCmd.getOutput());
 		// get duration
 		String regex = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
-		List<String> found = StringBox.findGroup(outError, regex);
+		List<String> found = StringBox.findGroup(out, regex);
 		if (found.size() > 0) {
 			int h = Integer.parseInt(found.get(0));
 			int m = Integer.parseInt(found.get(1));
@@ -174,16 +170,16 @@ public class FFmpegCmd extends RunCmd {
 		}
 		// get size
 		// regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+) fps,.*";
-		regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+).(\\d+) fps,.*";
-		found = StringBox.findGroup(outError, regex);
+		regex = ".*Video: .*, (\\d+)x(\\d+) .* (\\d+) kb/s,.*";
+		found = StringBox.findGroup(out, regex);
 		if (found.size() > 0) {
 			metadata.width = Integer.parseInt(found.get(0));
 			metadata.height = Integer.parseInt(found.get(1));
-			metadata.rate = Double.parseDouble(found.get(2) + "." + found.get(3));
+			metadata.rate = Double.parseDouble(found.get(2));
 		}
 
 		regex = ".*mean_volume: (.*) dB.*";
-		found = StringBox.findGroup(outError, regex);
+		found = StringBox.findGroup(out, regex);
 		if (found.size() > 0) {
 			metadata.meanVolume = Double.parseDouble(found.get(0));
 		}
@@ -377,17 +373,5 @@ public class FFmpegCmd extends RunCmd {
 		double duration;
 		double rate;
 		double meanVolume;
-
-		String input = "input";
-		String output = "output";
-		String decode = "decode";
-		String codec = "codec";
-		String bitrate = "bitrate";
-
-		@Override
-		public String toString() {
-			return "Metadata{" + "width=" + width + ", height=" + height + ", duration=" + duration + ", rate=" + rate
-					+ ", meanVolume=" + meanVolume + '}';
-		}
 	}
 }

@@ -14,7 +14,7 @@ public class SoxBox extends RunCmd {
 	Set<String> clearBox = new LinkedHashSet<>();
 
 	public List<String> noiseProf(String inputFile, String noise, String outFile) {
-		String prof = FilesBox.outExt(noise, "prof");
+		String prof = FilesBox.changeExt(noise, "prof");
 		clearBox.add(prof);
 		String cmd = String.format("%s %s -n noiseprof %s", sox, noise, prof);
 		String cmd1 = String.format("%s %s %s noisered %s 0.21", sox, inputFile, outFile, prof);
