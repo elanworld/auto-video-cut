@@ -7,10 +7,12 @@
 package com.alan.system;
 
 public enum SystemPath {
-	ROW_VIDEO_DIRECTORY("F:\\Alan\\Videos\\Mine\\selenium_download", "原视频目录"), GENERAL_VIDEO_DIRECTORY(
+	ROW_VIDEO("F:\\Alan\\Videos\\Mine\\selenium_download", "原视频目录"), GENERAL_VIDEO(
 			"F:\\Alan\\Videos\\Mine\\selenium_download\\touched",
 			"生成视频目录"), YOUTUBE("F:\\Alan\\Videos\\Mine\\selenium_download\\youtube", "youtube下载目录"), PRODUCE(
-					"F:\\Alan\\Videos\\Mine\\selenium_download\\youtube\\produce", "youtube下载目录");
+					"F:\\Alan\\Videos\\Mine\\selenium_download\\youtube\\produce",
+					"youtube生成目录"), BGM("F:\\Alan\\Music\\AutoCutBGM\\speak",
+							"bgm目录"), VLOG("F:\\Alan\\Videos\\Mine\\与我相关\\vlog", "vlog目录");
 
 	String path;
 	String describe;

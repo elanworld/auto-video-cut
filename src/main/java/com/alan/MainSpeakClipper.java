@@ -7,11 +7,14 @@ import java.util.List;
 import com.alan.audio.AudioContainer;
 import com.alan.audio.RosaPy4j;
 import com.alan.audio.SoxBox;
+import com.alan.system.SystemPath;
 import com.alan.util.FilesBox;
 import com.alan.video.FFmpegCmd;
 
+/**
+ * 说话识别监视视频剪切器
+ */
 public class MainSpeakClipper {
-	String bgmPath = "F:\\Alan\\Music\\AutoCutBGM\\speak";
 	boolean noise = false;
 
 	RosaPy4j rosaPy4j;
@@ -43,37 +46,43 @@ public class MainSpeakClipper {
 		String speak = FilesBox.outFile(file, "speak");
 		List<String> cleanFiles = new ArrayList<>(
 				Arrays.asList(good, bad, soxOut, soxOutDnorm, bgmGenerate, speakWithBgm, temp));
-		List<String> bgms = FilesBox.directoryListFilter(bgmPath, true, "mp3", "wav", "m4a");
+		List<String> bgms = FilesBox.directoryListFilter(SystemPath.BGM.getPath(), true, "mp3", "wav", "m4a");
 		String bgm = bgms.get(0);
 
 		// generate background music to good voice
 		fFmpegCmd.setInput(bgm).setOutput(bgmGenerate);
 		filtersSet.setAudioLoudnorm().setAudioVolumPercent(0.2).toFFmpegCmd();
-		fFmpegCmd.run().clear();
+		fFmpegCmd.run();
+		fFmpegCmd.clear();
 
 		// generate speak voice
 		fFmpegCmd.clear().setInput(file).setOutput(good);
-		filtersSet.setSelect(speakClips).toFFmpegCmd().run().clear();
+		filtersSet.setSelect(speakClips).toFFmpegCmd().run();
+		fFmpegCmd.clear();
 
 		if (noise) {
 			fFmpegCmd.setInput(file).setOutput(bad);
-			filtersSet.setSelect(silenceFromeSpeak).toFFmpegCmd().run().clear();
+			filtersSet.setSelect(silenceFromeSpeak).toFFmpegCmd().run();
+			fFmpegCmd.clear();
 			List<String> cmd = soxBox.noiseProf(bad, good, soxOut);
 			soxBox.run(cmd.get(0));
 			soxBox.run(cmd.get(1));
 		} else {
-			filtersSet.setAudioLoudnorm().toFFmpegCmd().setInput(good).setOutput(soxOut).run().clear();
+			filtersSet.setAudioLoudnorm().toFFmpegCmd().setInput(good).setOutput(soxOut).run();
 		}
 
 		filtersSet.setAudioLoudnorm().setAudioVolumPercent(1).toFFmpegCmd().setInput(soxOut).setOutput(soxOutDnorm)
-				.run().clear();
+				.run();
+		fFmpegCmd.clear();
 
 		fFmpegCmd.setInput(bgmGenerate).setInput(soxOutDnorm).setOutput(speakWithBgm);
-		filtersSet.setAudioMix().toFFmpegCmd().run().clear();
+		filtersSet.setAudioMix().toFFmpegCmd().run();
+		fFmpegCmd.clear();
 
 		// generate final file
 		fFmpegCmd.setInput(file).setOutput(temp).setCodecQSV();
-		filtersSet.setSelect(speakClips).toFFmpegCmd().run().clear();
+		filtersSet.setSelect(speakClips).toFFmpegCmd().run();
+		fFmpegCmd.clear();
 
 		// fFmpegCmd.setCodecQSV(); memory leaks
 		if (fFmpegCmd.isVideo(file)) {
@@ -86,8 +95,7 @@ public class MainSpeakClipper {
 	}
 
 	public static void main(String[] args) {
-		String dir = "F:\\Alan\\Videos\\Mine\\与我相关\\vlog";
-		for (String file : FilesBox.directoryListFilter(dir, false, "")) {
+		for (String file : FilesBox.directoryListFilter(SystemPath.VLOG.getPath(), false, "")) {
 			MainSpeakClipper mainSpeakClipper = new MainSpeakClipper();
 			mainSpeakClipper.run(file);
 		}

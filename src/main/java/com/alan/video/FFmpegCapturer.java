@@ -43,8 +43,8 @@ public class FFmpegCapturer extends FFmpegCmd {
 				cmds.add(cmd);
 			}
 		}
-		this.cmdLine = String.join(" ", cmds);
-		runCmd = new RunCmd(cmdLine, 3600, false, this.print);
+		this.command = String.join(" ", cmds);
+		runCmd = new RunCmd(command, 3600, false, this.print);
 		runCmd.input(StringBox.input());
 		return this;
 	}

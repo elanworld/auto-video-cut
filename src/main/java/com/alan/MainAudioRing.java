@@ -6,15 +6,19 @@ import java.util.List;
 import com.alan.audio.AudioContainer;
 import com.alan.util.FilesBox;
 import com.alan.util.Output;
+import com.alan.util.StringBox;
 import com.alan.video.FFmpegCmd;
 
+/**
+ * 铃声剪辑
+ */
 public class MainAudioRing {
 	public static void main(String[] args) {
-
-		String dir = "F:\\Alan\\Music";
-		File outDir = new File(dir, "out");
-		if (!outDir.exists()) {
-			outDir.mkdir();
+		String dir;
+		if (args.length == 0) {
+			dir = StringBox.input();
+		} else {
+			dir = args[0];
 		}
 		List<String> strings = FilesBox.directoryList(dir);
 		for (String file : strings) {
@@ -27,7 +31,7 @@ public class MainAudioRing {
 				start = (duration - 30) / 2;
 			}
 			FFmpegCmd fFmpegCmd = new FFmpegCmd();
-			String outFile = new File(outDir.toString(), FilesBox.pathSplit(file)[3]).toString();
+			String outFile = FilesBox.outDirFile(file);
 			if (new File(outFile).exists()) {
 				continue;
 			}

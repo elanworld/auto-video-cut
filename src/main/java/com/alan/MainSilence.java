@@ -4,6 +4,9 @@ import java.util.List;
 
 import com.alan.audio.SoxBox;
 
+/**
+ * 去除噪音
+ */
 public class MainSilence {
 	public static void main(String[] args) {
 		String audio = "F:\\Alan\\Videos\\Mine\\与我相关\\vlog\\aa.wav";

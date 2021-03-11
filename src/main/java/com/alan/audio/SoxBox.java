@@ -8,11 +8,9 @@ import java.util.Set;
 
 import com.alan.util.FilesBox;
 import com.alan.util.RunCmd;
-import com.alan.util.RunCmdInterface;
 
-public class SoxBox implements RunCmdInterface {
+public class SoxBox extends RunCmd {
 	String sox = "sox";
-	String cmdLine;
 	Set<String> clearBox = new LinkedHashSet<>();
 
 	public List<String> noiseProf(String inputFile, String noise, String outFile) {
@@ -27,11 +25,6 @@ public class SoxBox implements RunCmdInterface {
 		for (String f : clearBox) {
 			Paths.get(f).toFile().delete();
 		}
-	}
-
-	@Override
-	public void run(String command) {
-		new RunCmd(command);
 	}
 
 	@Override

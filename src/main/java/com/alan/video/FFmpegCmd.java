@@ -8,15 +8,13 @@ import java.util.List;
 
 import com.alan.util.Output;
 import com.alan.util.RunCmd;
-import com.alan.util.RunCmdInterface;
 import com.alan.util.StringBox;
 
-public class FFmpegCmd implements RunCmdInterface {
-	String ffmpeg = "ffmpeg";
+public class FFmpegCmd extends RunCmd {
+	private String ffmpeg = "ffmpeg";
 	List<String> cmdList = new ArrayList<>();
 	LinkedHashMap<String, String> cmdMap = new LinkedHashMap<>();
 	List<String> inputFiles = new ArrayList<>();
-	String cmdLine = null;
 	RunCmd runCmd = null;
 
 	FiltersSet filtersSet = null;
@@ -32,7 +30,8 @@ public class FFmpegCmd implements RunCmdInterface {
 		this.defaultSet();
 	}
 
-	public FFmpegCmd run() {
+	@Override
+	public void run() {
 		feasible(); // check all setting if possible
 
 		ArrayList<String> cmds = new ArrayList<>();
@@ -41,18 +40,12 @@ public class FFmpegCmd implements RunCmdInterface {
 				cmds.add(cmd);
 			}
 		}
-		this.cmdLine = String.join(" ", cmds);
+		this.command = String.join(" ", cmds);
 
-		runCmd = new RunCmd(cmdLine, keepAlive, this.wait, this.print);
+		runCmd = new RunCmd(command, keepAlive, this.wait, this.print);
 		if (this.wait) {
 			this.new ErrorMatcher().run();
 		}
-		return this;
-	}
-
-	@Override
-	public void run(String command) {
-
 	}
 
 	@Override
@@ -104,8 +97,8 @@ public class FFmpegCmd implements RunCmdInterface {
 
 	public FFmpegCmd setInput(String input, boolean clearInput) {
 		if (clearInput) {
-            inputFiles.clear();
-        }
+			inputFiles.clear();
+		}
 		return setInput(input);
 	}
 
@@ -161,15 +154,15 @@ public class FFmpegCmd implements RunCmdInterface {
 
 	public FiltersSet getFiltersSet() {
 		if (filtersSet == null) {
-            filtersSet = new FiltersSet();
-        }
+			filtersSet = new FiltersSet();
+		}
 		return filtersSet;
 	}
 
 	public SpecialFormat getSpecialFormat() {
 		if (specialFormat == null) {
-            specialFormat = new SpecialFormat();
-        }
+			specialFormat = new SpecialFormat();
+		}
 		return specialFormat;
 	}
 
@@ -213,12 +206,12 @@ public class FFmpegCmd implements RunCmdInterface {
 	public Boolean isVideo(String file) {
 		ArrayList<String> types = new ArrayList<>(Arrays.asList("mp4", "avi", "mkv"));
 		if (file == null) {
-            return false;
-        }
+			return false;
+		}
 		for (String type : types) {
 			if (file.matches(".*" + type + ".*")) {
-                return true;
-            }
+				return true;
+			}
 		}
 		return false;
 	}
@@ -227,6 +220,7 @@ public class FFmpegCmd implements RunCmdInterface {
 		return wait;
 	}
 
+	@Override
 	public void setWait(boolean wait) {
 		this.wait = wait;
 	}
@@ -243,6 +237,7 @@ public class FFmpegCmd implements RunCmdInterface {
 		return print;
 	}
 
+	@Override
 	public void setPrint(boolean print) {
 		this.print = print;
 	}
@@ -271,7 +266,7 @@ public class FFmpegCmd implements RunCmdInterface {
 			for (String error : errors) {
 				List<String> noFile = StringBox.findGroup(out, ".*(" + error + ").*");
 				if (!noFile.isEmpty()) {
-					Output.print(cmdLine);
+					Output.print(command);
 					throw new RuntimeException("got error: " + noFile.toString());
 				}
 			}
@@ -364,14 +359,14 @@ public class FFmpegCmd implements RunCmdInterface {
 			String join = String.join("+", selects);
 			String output = cmdMap.get("output");
 			if (output == null) {
-                throw new RuntimeException("please set output first");
-            }
+				throw new RuntimeException("please set output first");
+			}
 			if (isVideo(output)) {
-                selectJoin = String.format("select='%s',setpts=N/FRAME_RATE/TB;aselect='%s',asetpts=N/SR/TB", join,
-                        join);
-            } else {
-                selectJoin = String.format("aselect='%s',asetpts=N/SR/TB", join);
-            }
+				selectJoin = String.format("select='%s',setpts=N/FRAME_RATE/TB;aselect='%s',asetpts=N/SR/TB", join,
+						join);
+			} else {
+				selectJoin = String.format("aselect='%s',asetpts=N/SR/TB", join);
+			}
 			filters.add(selectJoin);
 			return this;
 		}
