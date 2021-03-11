@@ -62,7 +62,6 @@ public class OpenCvBox {
 		AiBaseTarget ai = new AiBaseTarget(splitHeight, big - small, (big + small) / 2, false);
 
 		FFmpegCmd fFmpegCmd = new FFmpegCmd();
-		fFmpegCmd.setting(true, true);
 		Mat mat = new Mat();
 		String lastHash;
 		String currentHash = null;
@@ -110,8 +109,8 @@ public class OpenCvBox {
 		String out = getWriteName(file);
 
 		if (Files.exists(Paths.get(out))) {
-            return;
-        }
+			return;
+		}
 		// out subtitle
 		String srtOut = out.replace(".mp4", ".srt");
 		boolean exist = subtitleClip(file, srtOut, tStart, tEnd);
@@ -140,8 +139,8 @@ public class OpenCvBox {
 	private boolean subtitleClip(String file, String srtOut, double start, double end) {
 		String srt = file.replace(".mp4", ".srt");
 		if (!Paths.get(srt).toFile().exists()) {
-            return false;
-        }
+			return false;
+		}
 		subtitleBox.init(srt);
 		List<String> byFilter = subtitleBox.getByFilter(true, false, true, start, end, -start);
 		return subtitleBox.write(byFilter, srtOut);

@@ -1,5 +1,6 @@
 package com.alan;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +27,7 @@ public class MainSpeakClipper {
 		rosaPy4j = new RosaPy4j();
 		audioContainer = new AudioContainer();
 		fFmpegCmd = new FFmpegCmd();
-		fFmpegCmd.setKeepAlive(10000);
+		fFmpegCmd.setTimeout(Duration.ofMinutes(10L));
 		soxBox = new SoxBox();
 	}
 

@@ -1,19 +1,18 @@
 package com.alan.video;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.alan.util.RunCmd;
 import com.alan.util.StringBox;
 
-public class FFmpegCapturer extends FFmpegCmd {
-	CmdInfo cmdInfo = new CmdInfo();
+public class FFmpegCapture extends FFmpegCmd {
 	DevicesInfo devicesInfo;
-	ArrayList<String> recordCmdList = new ArrayList<>();
+	ArrayList<FFmpegEnum> recordCmdList = new ArrayList<>();
 	ArrayList<String> inputDevices = new ArrayList<>();
 
-	public FFmpegCapturer() {
+	public FFmpegCapture() {
 		initCmdList();
 		capturerInit();
 		cmdMap.clear();
@@ -29,13 +28,13 @@ public class FFmpegCapturer extends FFmpegCmd {
 	}
 
 	private void capturerInit() {
-		recordCmdList = new ArrayList<>(Arrays.asList(cmdInfo.format, cmdInfo.log, cmdInfo.video_size,
-				cmdInfo.framerate, cmdInfo.inputDevices));
-		int input = cmdList.indexOf("input");
+		recordCmdList = new ArrayList<>(Arrays.asList(FFmpegEnum.format, FFmpegEnum.log, FFmpegEnum.video_size,
+				FFmpegEnum.framerate, FFmpegEnum.inputDevice));
+		int input = cmdList.indexOf(FFmpegEnum.input);
 		cmdList.addAll(input, recordCmdList);
 	}
 
-	public FFmpegCapturer runWithInput() {
+	public FFmpegCapture runWithInput() {
 
 		ArrayList<String> cmds = new ArrayList<>();
 		for (String cmd : cmdMap.values()) {
@@ -44,44 +43,45 @@ public class FFmpegCapturer extends FFmpegCmd {
 			}
 		}
 		this.command = String.join(" ", cmds);
-		runCmd = new RunCmd(command, 3600, false, this.print);
-		runCmd.input(StringBox.input());
+		setTimeout(Duration.ofMinutes(10L));
+		setWait(false);
+		input(StringBox.input());
 		return this;
 	}
 
-	private FFmpegCapturer setCmdMap(String cmdInfo, String line) {
+	private FFmpegCapture setCmdMap(FFmpegEnum cmdInfo, String line) {
 		cmdMap.replace(cmdInfo, line);
 		return this;
 	}
 
-	private FFmpegCapturer addFormat() {
-		setCmdMap(cmdInfo.format, "-f dshow");
+	private FFmpegCapture addFormat() {
+		setCmdMap(FFmpegEnum.format, "-f dshow");
 		return this;
 	}
 
-	public FFmpegCapturer addLog() {
-		setCmdMap(cmdInfo.log, "-show_video_device_dialog true -show_audio_device_dialog true");
+	public FFmpegCapture addLog() {
+		setCmdMap(FFmpegEnum.log, "-show_video_device_dialog true -show_audio_device_dialog true");
 		return this;
 	}
 
-	public FFmpegCapturer addCodecRaw() {
+	public FFmpegCapture addCodecRaw() {
 		setCodec("rawvideo");
 		return this;
 	}
 
 	private void setInputDevices() {
 		String join = String.join(":", inputDevices);
-		setCmdMap(cmdInfo.inputDevices, "-i " + join);
+		setCmdMap(FFmpegEnum.inputDevice, "-i " + join);
 	}
 
-	public FFmpegCapturer addVideoDevice(String regex) {
+	public FFmpegCapture addVideoDevice(String regex) {
 		inputDevices.add("video=" + devicesInfo.getDevice(regex));
 		setInputDevices();
 		return this;
 	}
 
-	public FFmpegCapturer addAudioDevice(String regex) {
-		setCmdMap(cmdInfo.format, "audio=" + devicesInfo.getDevice(regex));
+	public FFmpegCapture addAudioDevice(String regex) {
+		setCmdMap(FFmpegEnum.format, "audio=" + devicesInfo.getDevice(regex));
 		setInputDevices();
 		return this;
 	}
@@ -90,7 +90,7 @@ public class FFmpegCapturer extends FFmpegCmd {
 		List<String> devices;
 
 		public DevicesInfo() {
-			setCmdMap(cmdInfo.format, "-list_devices true -f dshow -i dummy");
+			setCmdMap(FFmpegEnum.format, "-list_devices true -f dshow -i dummy");
 			run();
 			List<String> result = getResult();
 			devices = StringBox.findGroup(result, "\\[.*\\] *(.*) *");
@@ -105,13 +105,4 @@ public class FFmpegCapturer extends FFmpegCmd {
 			throw new RuntimeException("not matcher any device by: " + regex);
 		}
 	}
-
-	private class CmdInfo {
-		public String inputDevices = "inputDevice";
-		public String format = "format";
-		public String log = "log";
-		public String video_size = "video_size";
-		public String framerate = "framerate";
-	}
-
 }

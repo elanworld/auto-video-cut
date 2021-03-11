@@ -12,6 +12,6 @@ public class BaiduTranslatorTest {
 
 	@Test
 	public void main() {
-		new BaiduTranslator().main("nice to meet you", true);
+		new BaiduTranslator().translate("nice to meet you", true);
 	}
 }

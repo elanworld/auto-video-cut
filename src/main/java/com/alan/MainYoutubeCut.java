@@ -7,6 +7,7 @@
 package com.alan;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.List;
 
 import com.alan.system.SystemPath;
@@ -23,6 +24,7 @@ import com.alan.video.FFmpegCmd;
 public class MainYoutubeCut {
 	public static void main(String[] args) {
 		FFmpegCmd fFmpegCmd = new FFmpegCmd();
+		fFmpegCmd.setTimeout(Duration.ofMinutes(5));
 		SubtitleBox sub = new SubtitleBox();
 		BaiduTranslator translator = new BaiduTranslator();
 		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4");
@@ -32,16 +34,21 @@ public class MainYoutubeCut {
 			String name = file.getName();
 			String parent = file.getParent();
 			String out = new File(SystemPath.PRODUCE.getPath(), name).toString();
+			if (new File(out).exists()) {
+				continue;
+			}
 			String s = new File(parent, name.replace("-", "_").replace("mp4", "srt")).getPath();
 			String ns = s + ".srt";
 			if (srt.stream().anyMatch(n -> n.equals(s))) {
 				sub.init(s);
 				sub.forEach(n -> {
-					String str = translator.main(String.join(",", n.getText()), true);
+					String str = translator.translate(String.join(",", n.getText()), true);
 					n.getText().add(str);
 				});
 				sub.write(sub.getAll(), ns);
-				fFmpegCmd.setInput(m).setOutput(out).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
+				fFmpegCmd.setInput(m).setOutput(out).getFiltersSet().setSubtitle(ns).toFFmpegCmd();
+				fFmpegCmd.run();
+				new File(ns).delete();
 			}
 		}
 

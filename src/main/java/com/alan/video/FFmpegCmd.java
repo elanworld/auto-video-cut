@@ -12,17 +12,12 @@ import com.alan.util.StringBox;
 
 public class FFmpegCmd extends RunCmd {
 	private String ffmpeg = "ffmpeg";
-	List<String> cmdList = new ArrayList<>();
-	LinkedHashMap<String, String> cmdMap = new LinkedHashMap<>();
+	List<FFmpegEnum> cmdList = new ArrayList<>();
+	LinkedHashMap<FFmpegEnum, String> cmdMap = new LinkedHashMap<>();
 	List<String> inputFiles = new ArrayList<>();
-	RunCmd runCmd = null;
 
 	FiltersSet filtersSet = null;
 	SpecialFormat specialFormat = null;
-
-	boolean wait = true;
-	int keepAlive = 100;
-	boolean print = true;
 
 	public FFmpegCmd() {
 		this.initCmdList();
@@ -33,7 +28,6 @@ public class FFmpegCmd extends RunCmd {
 	@Override
 	public void run() {
 		feasible(); // check all setting if possible
-
 		ArrayList<String> cmds = new ArrayList<>();
 		for (String cmd : cmdMap.values()) {
 			if (cmd != null) {
@@ -41,45 +35,25 @@ public class FFmpegCmd extends RunCmd {
 			}
 		}
 		this.command = String.join(" ", cmds);
-
-		runCmd = new RunCmd(command, keepAlive, this.wait, this.print);
-		if (this.wait) {
-			this.new ErrorMatcher().run();
-		}
-	}
-
-	@Override
-	public List<String> getResult() {
-		ArrayList<String> output = runCmd.getOutput();
-		output.addAll(runCmd.getError());
-		return output;
-	}
-
-	@Override
-	public void input(String input) {
-
+		super.run();
 	}
 
 	public void initCmdList() {
-		cmdList.addAll(Arrays.asList("ffmpeg", "overwrite", "hw", "decode", "time_off", "input", "crop",
-				"filter_complex", "diyLine", "map", "codec", "bitrate", "output"));
+		cmdList.addAll(Arrays.asList(FFmpegEnum.ffmpeg, FFmpegEnum.overwrite, FFmpegEnum.hw, FFmpegEnum.decode,
+				FFmpegEnum.time_off, FFmpegEnum.input, FFmpegEnum.crop, FFmpegEnum.filter_complex, FFmpegEnum.diyLine,
+				FFmpegEnum.map, FFmpegEnum.codec, FFmpegEnum.bitrate, FFmpegEnum.output));
 	}
 
 	public void initCmdMap() {
-		for (String cmd : cmdList) {
+		for (FFmpegEnum cmd : cmdList) {
 			cmdMap.put(cmd, null);
 		}
-		cmdMap.replace("ffmpeg", ffmpeg);
-		cmdMap.replace("overwrite", "-y");
+		cmdMap.replace(FFmpegEnum.ffmpeg, ffmpeg);
+		cmdMap.replace(FFmpegEnum.overwrite, "-y");
 	}
 
 	public void defaultSet() {
 		setCodecQSV();
-	}
-
-	public void setting(boolean wait, boolean print) {
-		this.wait = wait;
-		this.print = print;
 	}
 
 	/**
@@ -91,7 +65,7 @@ public class FFmpegCmd extends RunCmd {
 	public FFmpegCmd setInput(String input) {
 		String line = String.format("-i \"%s\"", input);
 		inputFiles.add(line);
-		cmdMap.replace("input", String.join(" ", inputFiles));
+		cmdMap.replace(FFmpegEnum.input, String.join(" ", inputFiles));
 		return this;
 	}
 
@@ -103,12 +77,12 @@ public class FFmpegCmd extends RunCmd {
 	}
 
 	public FFmpegCmd setOutput(String output) {
-		cmdMap.replace("output", String.format("\"%s\"", output));
+		cmdMap.replace(FFmpegEnum.output, String.format("\"%s\"", output));
 		return this;
 	}
 
 	public FFmpegCmd setCodec(String codec) {
-		cmdMap.replace("codec", "-c:v " + codec);
+		cmdMap.replace(FFmpegEnum.codec, "-c:v " + codec);
 		return this;
 	}
 
@@ -119,29 +93,35 @@ public class FFmpegCmd extends RunCmd {
 	 */
 	public FFmpegCmd setCodecQSV() {
 		// cmdMap.replace("hw", "-hwaccel qsv");
-		cmdMap.replace("decode", "-c:v h264_qsv");
-		cmdMap.replace("codec", "-c:v h264_qsv");
-		cmdMap.replace("bitrate", "-b:v 20M");
+		cmdMap.replace(FFmpegEnum.decode, "-c:v h264_qsv");
+		cmdMap.replace(FFmpegEnum.codec, "-c:v h264_qsv");
+		cmdMap.replace(FFmpegEnum.bitrate, "-b:v 20M");
+		return this;
+	}
+
+	public FFmpegCmd restoreQsv() {
+		this.clear(FFmpegEnum.bitrate, FFmpegEnum.decode, FFmpegEnum.codec);
 		return this;
 	}
 
 	public FFmpegCmd setTime(double start, double end) {
-		cmdMap.replace("time_off", String.format("-ss %s -to %s", start, end));
+		cmdMap.replace(FFmpegEnum.time_off, String.format("-ss %s -to %s", start, end));
 		return this;
 	}
 
 	public FFmpegCmd setCrop(double widthPercent, double heightPercent) {
-		cmdMap.replace("crop", String.format("-vf crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
+		cmdMap.replace(FFmpegEnum.crop,
+				String.format("-vf crop=iw*%s:ih*%s:(iw-ow)/2:(ih-oh)/2", widthPercent, heightPercent));
 		return this;
 	}
 
 	public FFmpegCmd setDiyLine(String diyLine) {
-		cmdMap.replace("diyLine", diyLine);
+		cmdMap.replace(FFmpegEnum.diyLine, diyLine);
 		return this;
 	}
 
 	public FFmpegCmd setMap(String diyLine) {
-		cmdMap.replace("map", diyLine);
+		cmdMap.replace(FFmpegEnum.map, diyLine);
 		return this;
 	}
 
@@ -149,6 +129,13 @@ public class FFmpegCmd extends RunCmd {
 		this.initCmdList();
 		this.initCmdMap();
 		this.inputFiles.clear();
+		return this;
+	}
+
+	public FFmpegCmd clear(FFmpegEnum... fFmpegEnums) {
+		Arrays.stream(fFmpegEnums).forEach(n -> {
+			cmdMap.replace(n, "");
+		});
 		return this;
 	}
 
@@ -220,28 +207,6 @@ public class FFmpegCmd extends RunCmd {
 		return wait;
 	}
 
-	@Override
-	public void setWait(boolean wait) {
-		this.wait = wait;
-	}
-
-	public int getKeepAlive() {
-		return keepAlive;
-	}
-
-	public void setKeepAlive(int keepAlive) {
-		this.keepAlive = keepAlive;
-	}
-
-	public boolean isPrint() {
-		return print;
-	}
-
-	@Override
-	public void setPrint(boolean print) {
-		this.print = print;
-	}
-
 	/**
 	 * check the command feasible change to correct if possible
 	 */
@@ -256,8 +221,8 @@ public class FFmpegCmd extends RunCmd {
 		List<String> errors;
 
 		public ErrorMatcher() {
-			out = runCmd.getError();
-			out.addAll(runCmd.getOutput());
+			out.addAll(getError());
+			out.addAll(getOutput());
 			errors = new ArrayList<>(Arrays.asList("No such file or directory",
 					"Invalid data found when processing input", "Conversion failed!"));
 		}
@@ -293,7 +258,7 @@ public class FFmpegCmd extends RunCmd {
 		public FFmpegCmd toFFmpegCmd() {
 			String filterLine = String.format("-filter_complex \"%s\"", String.join(",", filters));
 			filters.clear();
-			cmdMap.replace("filter_complex", filterLine);
+			cmdMap.replace(FFmpegEnum.filter_complex, filterLine);
 			return FFmpegCmd.this;
 		}
 
@@ -402,7 +367,7 @@ public class FFmpegCmd extends RunCmd {
 
 		public SpecialFormat baiduAipPCM() {
 			String pcm = "-acodec pcm_s16le -f s16le -ac 1 -ar 16000";
-			cmdMap.replace("codec", pcm);
+			cmdMap.replace(FFmpegEnum.codec, pcm);
 			return this;
 		}
 	}
