@@ -32,27 +32,27 @@ public class MainYoutubeCut {
 		List<String> srt = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
 		Output.print("find video:", mp4);
 		for (String m : mp4) {
-			File file = new File(m);
-			String name = file.getName();
-			String parent = file.getParent();
-			String out = new File(SystemPath.PRODUCE.getPath(), name).toString();
-			String s = new File(parent, name.replace("-", "_").replace("mp4", "srt")).getPath();
-			String ns = s + ".srt";
-			if (srt.stream().anyMatch(n -> n.equals(s))) {
-				sub.init(s);
-				sub.forEach(n -> {
-					String str = translator.translate(String.join(",", n.getText()), true);
-					n.getText().add(str);
-				});
-				sub.write(sub.getAll(), ns);
-				fFmpegCmd.setInput(m).setOutput(out).setCodecQSV().getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
-				if (new File(out).exists()) {
-					FilesBox.move(m, FilesBox.outDir(m, "used"));
-					FilesBox.move(s, FilesBox.outDir(s, "used"));
-					new File(ns).delete();
+			String rs;
+			for (String s : srt) {
+				rs = FilesBox.renameIfLike(m, s);
+				String ns = FilesBox.outFile(rs, "new");
+				String out = new File(SystemPath.PRODUCE.getPath(), new File(m).getName()).toString();
+				if (rs != null) {
+					sub.init(rs);
+					sub.forEach(n -> {
+						String str = translator.translate(String.join(",", n.getText()), true);
+						n.getText().add(str);
+					});
+					sub.write(sub.getAll(), ns);
+					fFmpegCmd.setInput(m).setOutput(out).setCodecQSV().getFiltersSet().setSubtitle(ns).toFFmpegCmd()
+							.run();
+					if (new File(out).exists()) {
+						FilesBox.move(m, FilesBox.outDir(m, "used"));
+						FilesBox.move(ns, FilesBox.outDir(s, "used"));
+						new File(ns).delete();
+					}
 				}
 			}
 		}
-
 	}
 }
