@@ -48,7 +48,7 @@ public class MainYoutubeCut {
 							.run();
 					if (new File(out).exists()) {
 						FilesBox.move(m, FilesBox.outDir(m, "used"));
-						FilesBox.move(ns, FilesBox.outDir(s, "used"));
+						FilesBox.move(rs, FilesBox.outDir(m, "used"));
 						new File(ns).delete();
 					}
 				}
