@@ -25,7 +25,7 @@ import com.alan.video.FFmpegCmd;
 public class MainYoutubeCut {
 	public static void main(String[] args) {
 		FFmpegCmd fFmpegCmd = new FFmpegCmd();
-		fFmpegCmd.setTimeout(Duration.ofMinutes(5));
+		fFmpegCmd.setTimeout(Duration.ofMinutes(30));
 		SubtitleBox sub = new SubtitleBox();
 		BaiduTranslator translator = new BaiduTranslator();
 		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4");
@@ -40,12 +40,11 @@ public class MainYoutubeCut {
 				if (rs != null) {
 					sub.init(rs);
 					sub.forEach(n -> {
-						String str = translator.translate(String.join(",", n.getText()), true);
-						n.getText().add(str);
+						// String str = translator.translate(String.join(",", n.getText()), true);
+						// n.getText().add(str);
 					});
 					sub.write(sub.getAll(), ns);
-					fFmpegCmd.setInput(m).setOutput(out).setCodecQSV().getFiltersSet().setSubtitle(ns).toFFmpegCmd()
-							.run();
+					fFmpegCmd.setInput(m).setOutput(out).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
 					if (new File(out).exists()) {
 						FilesBox.move(m, FilesBox.outDir(m, "used"));
 						FilesBox.move(rs, FilesBox.outDir(m, "used"));
