@@ -15,6 +15,7 @@ import com.alan.text.SubtitleBox;
 import com.alan.text.baudu.BaiduTranslator;
 import com.alan.util.FilesBox;
 import com.alan.util.Output;
+import com.alan.util.StringBox;
 import com.alan.video.FFmpegCmd;
 
 /**
@@ -40,8 +41,10 @@ public class MainYoutubeCut {
 				if (rs != null) {
 					sub.init(rs);
 					sub.forEach(n -> {
-						// String str = translator.translate(String.join(",", n.getText()), true);
-						// n.getText().add(str);
+						if (!StringBox.checkChinese(String.join(",", n.getText()))) {
+							String str = translator.translate(String.join(",", n.getText()), true);
+							n.getText().add(str);
+						}
 					});
 					sub.write(sub.getAll(), ns);
 					fFmpegCmd.setInput(m).setOutput(out).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
