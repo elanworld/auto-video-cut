@@ -29,13 +29,16 @@ public class MainYoutubeCut {
 		fFmpegCmd.setTimeout(Duration.ofMinutes(30));
 		SubtitleBox sub = new SubtitleBox();
 		BaiduTranslator translator = new BaiduTranslator();
-		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4");
+		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4", "webm");
 		List<String> srt = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
 		Output.print("find video:", mp4);
 		for (String m : mp4) {
 			String rs;
 			for (String s : srt) {
 				rs = FilesBox.renameIfLike(m, s);
+				if (rs == null) {
+					continue;
+				}
 				String ns = FilesBox.outFile(rs, "new");
 				String out = new File(SystemPath.PRODUCE.getPath(), new File(m).getName()).toString();
 				if (rs != null) {
@@ -47,7 +50,8 @@ public class MainYoutubeCut {
 						}
 					});
 					sub.write(sub.getAll(), ns);
-					fFmpegCmd.setInput(m).setOutput(out).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
+					fFmpegCmd.setInput(m).setOutput(out).setCodecQSV().getFiltersSet().setSubtitle(ns).toFFmpegCmd()
+							.run();
 					if (new File(out).exists()) {
 						FilesBox.move(m, FilesBox.outDir(m, "used"));
 						FilesBox.move(rs, FilesBox.outDir(m, "used"));
