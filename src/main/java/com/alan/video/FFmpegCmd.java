@@ -87,7 +87,7 @@ public class FFmpegCmd extends RunCmd {
 	 * @return
 	 */
 	public FFmpegCmd setCodecQSV() {
-		double rate = getInfo().rate;
+		double rate = this.new Metadata().getInfo().rate;
 		cmdMap.replace(FFmpegEnum.decode, "-c:v h264_qsv");
 		cmdMap.replace(FFmpegEnum.codec, "-c:v h264_qsv");
 		cmdMap.replace(FFmpegEnum.bitrate, String.format("-b:v %sK", (int) rate));
@@ -146,44 +146,6 @@ public class FFmpegCmd extends RunCmd {
 			specialFormat = new SpecialFormat();
 		}
 		return specialFormat;
-	}
-
-	private Metadata getInfo() {
-		Metadata metadata = new Metadata();
-		String file = cmdMap.get(FFmpegEnum.input);
-		if (file == null) {
-			throw new RuntimeException("please set input file first");
-		}
-		String cmd = String.format("ffmpeg %s -filter_complex volumedetect -f null -", file);
-		RunCmd runCmd = new RunCmd(cmd);
-		ArrayList<String> out = runCmd.getError();
-		out.addAll(runCmd.getOutput());
-		// get duration
-		String regex = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
-		List<String> found = StringBox.findGroup(out, regex);
-		if (found.size() > 0) {
-			int h = Integer.parseInt(found.get(0));
-			int m = Integer.parseInt(found.get(1));
-			int s = Integer.parseInt(found.get(2));
-			int fs = Integer.parseInt(found.get(3));
-			metadata.duration = h * 3600 + m * 60 + s + (double) fs / 60;
-		}
-		// get size
-		// regex = ".*Video: .*, (\\d+)x(\\d+) .*, (\\d+) fps,.*";
-		regex = ".*Video: .*, (\\d+)x(\\d+) .* (\\d+) kb/s,.*";
-		found = StringBox.findGroup(out, regex);
-		if (found.size() > 0) {
-			metadata.width = Integer.parseInt(found.get(0));
-			metadata.height = Integer.parseInt(found.get(1));
-			metadata.rate = Double.parseDouble(found.get(2));
-		}
-
-		regex = ".*mean_volume: (.*) dB.*";
-		found = StringBox.findGroup(out, regex);
-		if (found.size() > 0) {
-			metadata.meanVolume = Double.parseDouble(found.get(0));
-		}
-		return metadata;
 	}
 
 	public Boolean isVideo(String file) {
@@ -284,14 +246,14 @@ public class FFmpegCmd extends RunCmd {
 			return this;
 		}
 
-		public FiltersSet setAudioVolum(double db) {
-			double meanVolume = getInfo().meanVolume;
+		public FiltersSet setAudioVolume(double db) {
+			double meanVolume = toFFmpegCmd().new Metadata().getVolume().meanVolume;
 			double slip = db - meanVolume;
 			filters.add(String.format("volume=volume=%sdB", slip));
 			return this;
 		}
 
-		public FiltersSet setAudioVolumPercent(double percent) {
+		public FiltersSet setAudioVolumePercent(double percent) {
 			filters.add(String.format("volume=volume=%s", percent));
 			return this;
 		}
@@ -373,5 +335,58 @@ public class FFmpegCmd extends RunCmd {
 		double duration;
 		double rate;
 		double meanVolume;
+
+		private Metadata() {
+			if (cmdMap.get(FFmpegEnum.input) == null) {
+				throw new RuntimeException("please set input file first");
+			}
+		}
+
+		private Metadata getInfo() {
+			String file = cmdMap.get(FFmpegEnum.input);
+			String cmd = String.format("ffmpeg %s", file);
+			RunCmd runCmd = new RunCmd(cmd);
+			ArrayList<String> out = runCmd.getError();
+			out.addAll(runCmd.getOutput());
+			// get duration
+			String regex = ".*Duration: (\\d{2}):(\\d{2}):(\\d{2}).(\\d{2}),.*";
+			List<String> found = StringBox.findGroup(out, regex);
+			if (found.size() == 4) {
+				int h = Integer.parseInt(found.get(0));
+				int m = Integer.parseInt(found.get(1));
+				int s = Integer.parseInt(found.get(2));
+				int fs = Integer.parseInt(found.get(3));
+				duration = h * 3600 + m * 60 + s + (double) fs / 60;
+			}
+			// get size
+			regex = ".*Stream.*Video: .*, (\\d+)x(\\d+), .*";
+			found = StringBox.findGroup(out, regex);
+			if (found.size() == 2) {
+				width = Integer.parseInt(found.get(0));
+				height = Integer.parseInt(found.get(1));
+			}
+			regex = ".*Duration:.* bitrate: (\\d+) kb/s";
+			found = StringBox.findGroup(out, regex);
+			if (found.size() == 1) {
+				rate = Double.parseDouble(found.get(0));
+			}
+			return this;
+		}
+
+		private Metadata getVolume() {
+			String file = cmdMap.get(FFmpegEnum.input);
+			String cmd = String.format("ffmpeg %s -filter_complex volumedetect -f null -", file);
+			RunCmd runCmd = new RunCmd(cmd);
+			ArrayList<String> out = runCmd.getError();
+			out.addAll(runCmd.getOutput());
+
+			String regex = ".*mean_volume: (.*) dB.*";
+			List<String> found = StringBox.findGroup(out, regex);
+			if (found.size() > 0) {
+				meanVolume = Double.parseDouble(found.get(0));
+			}
+			return this;
+		}
+
 	}
 }

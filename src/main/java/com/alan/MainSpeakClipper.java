@@ -52,7 +52,7 @@ public class MainSpeakClipper {
 
 		// generate background music to good voice
 		fFmpegCmd.setInput(bgm).setOutput(bgmGenerate);
-		filtersSet.setAudioLoudnorm().setAudioVolumPercent(0.2).toFFmpegCmd();
+		filtersSet.setAudioLoudnorm().setAudioVolumePercent(0.2).toFFmpegCmd();
 		fFmpegCmd.run();
 		fFmpegCmd.clear();
 
@@ -72,7 +72,7 @@ public class MainSpeakClipper {
 			filtersSet.setAudioLoudnorm().toFFmpegCmd().setInput(good).setOutput(soxOut).run();
 		}
 
-		filtersSet.setAudioLoudnorm().setAudioVolumPercent(1).toFFmpegCmd().setInput(soxOut).setOutput(soxOutDnorm)
+		filtersSet.setAudioLoudnorm().setAudioVolumePercent(1).toFFmpegCmd().setInput(soxOut).setOutput(soxOutDnorm)
 				.run();
 		fFmpegCmd.clear();
 
