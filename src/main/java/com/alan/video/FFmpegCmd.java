@@ -88,7 +88,7 @@ public class FFmpegCmd extends RunCmd {
 	 */
 	public FFmpegCmd setCodecQSV() {
 		double rate = this.new Metadata().getInfo().rate;
-		cmdMap.replace(FFmpegEnum.decode, "-c:v h264_qsv");
+		// 输出使用GPU编码codec，输入不确定，使用cpu
 		cmdMap.replace(FFmpegEnum.codec, "-c:v h264_qsv");
 		cmdMap.replace(FFmpegEnum.bitrate, String.format("-b:v %sK", (int) rate));
 		return this;

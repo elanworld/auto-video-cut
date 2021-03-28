@@ -35,34 +35,32 @@ public class MainYoutubeCut {
 		for (String m : mp4) {
 			String rs;
 			for (String s : srt) {
-				rs = FilesBox.renameIfLike(m, s);
+				rs = FilesBox.renameIfLike(m, s, 0.5);
 				if (rs == null) {
 					continue;
 				}
 				String ns = FilesBox.outFile(rs, "new");
 				String out = new File(SystemPath.PRODUCE.getPath(), new File(m).getName()).toString();
-				if (rs != null) {
-					sub.init(rs);
-					sub.forEach(n -> {
-						if (!StringBox.checkChinese(String.join(",", n.getText()))) {
-							String str = translator.translate(String.join(",", n.getText()), true);
-							n.getText().add(str);
-						}
-					});
-					sub.write(sub.getAll(), ns);
-					if (m.contains("webm")) {
-						String outFile = FilesBox.outFile(m, "new");
-						fFmpegCmd.setInput(m).setOutput(outFile).setCodecQSV().run();
-						FilesBox.move(m, FilesBox.outDir(m, "used"));
-						m = outFile;
+				sub.init(rs);
+				sub.forEach(n -> {
+					if (!StringBox.checkChinese(String.join(",", n.getText()))) {
+						String str = translator.translate(String.join(",", n.getText()), true);
+						n.getText().add(str);
 					}
-					fFmpegCmd.setInput(m).setOutput(out).setCodecQSV().getFiltersSet().setSubtitle(ns).toFFmpegCmd()
-							.run();
-					if (new File(out).exists()) {
-						FilesBox.move(m, FilesBox.outDir(m, "used"));
-						FilesBox.move(rs, FilesBox.outDir(m, "used"));
-						new File(ns).delete();
-					}
+				});
+				sub.write(sub.getAll(), ns);
+				if (m.contains("webm")) {
+					String outFile = FilesBox.outFile(m, "new");
+					fFmpegCmd.setInput(m).setOutput(outFile).setCodecQSV().run();
+					FilesBox.move(m, FilesBox.outDir(m, "used"));
+					m = outFile;
+				}
+				fFmpegCmd.setInput(m).setOutput(out).setCodecQSV().getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
+				File output = new File(out);
+				if (output.exists()) {
+					FilesBox.move(m, FilesBox.outDir(m, "used"));
+					FilesBox.move(rs, FilesBox.outDir(m, "used"));
+					new File(ns).delete();
 				}
 			}
 		}
