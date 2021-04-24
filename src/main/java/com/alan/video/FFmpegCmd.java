@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.alan.util.Output;
-import com.alan.util.RunCmd;
-import com.alan.util.StringBox;
+import com.alan.common.util.Output;
+import com.alan.common.util.RunCmd;
+import com.alan.common.util.StringBox;
 
 public class FFmpegCmd extends RunCmd {
 	private String ffmpeg = "ffmpeg";

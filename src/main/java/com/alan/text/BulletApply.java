@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import com.alan.util.FilesBox;
-import com.alan.util.StringBox;
+import com.alan.common.util.FilesBox;
+import com.alan.common.util.StringBox;
 import com.alan.video.FFmpegCmd;
 
 public class BulletApply {

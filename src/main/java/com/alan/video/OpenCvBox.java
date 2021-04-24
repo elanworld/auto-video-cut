@@ -19,10 +19,10 @@ import org.opencv.videoio.VideoWriter;
 import org.opencv.videoio.Videoio;
 
 import com.alan.ai.AiBaseTarget;
+import com.alan.common.util.FilesBox;
+import com.alan.common.util.Output;
 import com.alan.photo.ImagePHash;
 import com.alan.text.SubtitleBox;
-import com.alan.util.FilesBox;
-import com.alan.util.Output;
 
 public class OpenCvBox {
 	static {

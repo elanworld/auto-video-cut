@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.alan.util.StringBox;
+import com.alan.common.util.StringBox;
 
 public class FFmpegCapture extends FFmpegCmd {
 	DevicesInfo devicesInfo;

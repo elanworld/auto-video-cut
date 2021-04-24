@@ -6,7 +6,7 @@
 
 package com.alan.text.baudu;
 
-import com.alan.util.Output;
+import com.alan.common.util.Output;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 

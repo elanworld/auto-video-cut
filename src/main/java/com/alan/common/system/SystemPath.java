@@ -4,7 +4,7 @@
  * All rights reserved.
  */
 
-package com.alan.system;
+package com.alan.common.system;
 
 public enum SystemPath {
 	ROW_VIDEO("F:\\Alan\\Videos\\Mine\\selenium_download", "原视频目录"), GENERAL_VIDEO(

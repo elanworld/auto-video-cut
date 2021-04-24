@@ -1,8 +1,8 @@
 package com.alan;
 
-import com.alan.system.SystemPath;
-import com.alan.util.FilesBox;
-import com.alan.util.Output;
+import com.alan.common.system.SystemPath;
+import com.alan.common.util.FilesBox;
+import com.alan.common.util.Output;
 import com.alan.video.OpenCvBox;
 
 /**

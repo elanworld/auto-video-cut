@@ -6,8 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.alan.util.FilesBox;
-import com.alan.util.RunCmd;
+import com.alan.common.util.FilesBox;
+import com.alan.common.util.RunCmd;
 
 public class SoxBox extends RunCmd {
 	String sox = "sox";

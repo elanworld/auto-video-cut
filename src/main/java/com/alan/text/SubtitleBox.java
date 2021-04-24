@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.alan.util.FilesBox;
-import com.alan.util.StringBox;
+import com.alan.common.util.FilesBox;
+import com.alan.common.util.StringBox;
 
 /**
  * @Description: srt字幕工具

@@ -1,5 +1,5 @@
+import com.alan.common.util.Output;
 import com.alan.text.Translator;
-import com.alan.util.Output;
 import com.alan.video.FFmpegCapture;
 
 public class MainTest {

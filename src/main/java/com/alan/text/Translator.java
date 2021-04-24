@@ -5,9 +5,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-import com.alan.util.Output;
-import com.alan.util.StringBox;
-import com.alan.web.ApacheHttpBox;
+import com.alan.common.util.Output;
+import com.alan.common.util.StringBox;
+import com.alan.common.web.ApacheHttpBox;
 
 public class Translator {
 	private static final String API_URL = "https://openapi.youdao.com/api";

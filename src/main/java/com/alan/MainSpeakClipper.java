@@ -8,8 +8,8 @@ import java.util.List;
 import com.alan.audio.AudioContainer;
 import com.alan.audio.RosaPy4j;
 import com.alan.audio.SoxBox;
-import com.alan.system.SystemPath;
-import com.alan.util.FilesBox;
+import com.alan.common.system.SystemPath;
+import com.alan.common.util.FilesBox;
 import com.alan.video.FFmpegCmd;
 
 /**

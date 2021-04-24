@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.junit.Assume;
 import org.junit.Test;
 
-import com.alan.util.Output;
+import com.alan.common.util.Output;
 
 public class SubtitleBoxTest {
 
