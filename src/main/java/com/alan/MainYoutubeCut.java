@@ -14,8 +14,8 @@ import com.alan.common.system.SystemPath;
 import com.alan.common.util.FilesBox;
 import com.alan.common.util.Output;
 import com.alan.common.util.StringBox;
+import com.alan.common.web.tans.BaiduTranslator;
 import com.alan.text.SubtitleBox;
-import com.alan.text.baudu.BaiduTranslator;
 import com.alan.video.FFmpegCmd;
 
 /**

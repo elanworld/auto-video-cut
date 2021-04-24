@@ -1,11 +1,11 @@
 import com.alan.common.util.Output;
-import com.alan.text.Translator;
+import com.alan.common.web.tans.YoudaoTranslator;
 import com.alan.video.FFmpegCapture;
 
 public class MainTest {
 
 	public void translate() {
-		String run = new Translator().run("i don`t know who i am");
+		String run = new YoudaoTranslator().tans("i don`t know who i am");
 		Output.print(run);
 	}
 
