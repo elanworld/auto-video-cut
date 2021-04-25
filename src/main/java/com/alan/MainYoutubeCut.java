@@ -11,11 +11,11 @@ import java.time.Duration;
 import java.util.List;
 
 import com.alan.common.system.SystemPath;
+import com.alan.common.text.SubtitleBox;
 import com.alan.common.util.FilesBox;
 import com.alan.common.util.Output;
 import com.alan.common.util.StringBox;
 import com.alan.common.web.tans.BaiduTranslator;
-import com.alan.text.SubtitleBox;
 import com.alan.video.FFmpegCmd;
 
 /**
@@ -28,7 +28,6 @@ public class MainYoutubeCut {
 		FFmpegCmd fFmpegCmd = new FFmpegCmd();
 		fFmpegCmd.setTimeout(Duration.ofMinutes(30));
 		SubtitleBox sub = new SubtitleBox();
-		BaiduTranslator translator = new BaiduTranslator();
 		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4", "webm");
 		List<String> srt = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
 		Output.print("find video:", mp4);
@@ -44,7 +43,7 @@ public class MainYoutubeCut {
 				sub.init(rs);
 				sub.forEach(n -> {
 					if (!StringBox.checkChinese(String.join(",", n.getText()))) {
-						String str = translator.translate(String.join(",", n.getText()), true);
+						String str = BaiduTranslator.translate(String.join(",", n.getText()), true);
 						n.getText().add(str);
 					}
 				});

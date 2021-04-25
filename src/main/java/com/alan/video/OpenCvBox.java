@@ -22,7 +22,7 @@ import com.alan.ai.AiBaseTarget;
 import com.alan.common.util.FilesBox;
 import com.alan.common.util.Output;
 import com.alan.photo.ImagePHash;
-import com.alan.text.SubtitleBox;
+import com.alan.common.text.SubtitleBox;
 
 public class OpenCvBox {
 	static {

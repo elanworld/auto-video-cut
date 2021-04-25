@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.alan.common.text.SubtitleBox;
 import org.junit.Assume;
 import org.junit.Test;
 
