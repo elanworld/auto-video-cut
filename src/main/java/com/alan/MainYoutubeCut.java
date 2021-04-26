@@ -28,7 +28,7 @@ public class MainYoutubeCut {
 		FFmpegCmd fFmpegCmd = new FFmpegCmd();
 		fFmpegCmd.setTimeout(Duration.ofMinutes(30));
 		SubtitleBox sub = new SubtitleBox();
-		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mp4", "webm");
+		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mkv", "mp4", "webm");
 		List<String> srt = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
 		Output.print("find video:", mp4);
 		for (String m : mp4) {
