@@ -48,12 +48,6 @@ public class MainYoutubeCut {
 					}
 				});
 				sub.write(sub.getAll(), ns);
-				if (m.contains("webm")) {
-					String outFile = FilesBox.outFile(m, "new");
-					fFmpegCmd.setInput(m).setOutput(outFile).setCodecQSV().run();
-					FilesBox.move(m, FilesBox.outDir(m, "used"));
-					m = outFile;
-				}
 				fFmpegCmd.setInput(m).setOutput(out).setCodecQSV().getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
 				File output = new File(out);
 				if (output.exists()) {
