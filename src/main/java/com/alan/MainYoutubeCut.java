@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.List;
 
 import com.alan.common.system.SystemPath;
+import com.alan.common.text.FileSuffixEnum;
 import com.alan.common.text.SubtitleBox;
 import com.alan.common.util.FilesBox;
 import com.alan.common.util.Output;
@@ -28,7 +29,7 @@ public class MainYoutubeCut {
 		FFmpegCmd fFmpegCmd = new FFmpegCmd();
 		fFmpegCmd.setTimeout(Duration.ofMinutes(30));
 		SubtitleBox sub = new SubtitleBox();
-		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "mkv", "mp4", "webm");
+		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, FileSuffixEnum.video());
 		List<String> srt = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
 		Output.print("find video:", mp4);
 		for (String m : mp4) {
