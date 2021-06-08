@@ -39,9 +39,9 @@ public class FFmpegCmd extends RunCmd {
 	}
 
 	protected void initCmdList() {
-		cmdList.addAll(Arrays.asList(FFmpegEnum.ffmpeg, FFmpegEnum.overwrite, FFmpegEnum.hw, FFmpegEnum.decode,
-				FFmpegEnum.time_off, FFmpegEnum.input, FFmpegEnum.crop, FFmpegEnum.filter_complex, FFmpegEnum.diyLine,
-				FFmpegEnum.map, FFmpegEnum.codec, FFmpegEnum.bitrate, FFmpegEnum.output));
+		cmdList.addAll(Arrays.asList(FFmpegEnum.ffmpeg, FFmpegEnum.concat, FFmpegEnum.overwrite, FFmpegEnum.hw,
+				FFmpegEnum.decode, FFmpegEnum.time_off, FFmpegEnum.input, FFmpegEnum.crop, FFmpegEnum.filter_complex,
+				FFmpegEnum.diyLine, FFmpegEnum.map, FFmpegEnum.codec, FFmpegEnum.bitrate, FFmpegEnum.output));
 	}
 
 	protected void initCmdMap() {
@@ -91,7 +91,9 @@ public class FFmpegCmd extends RunCmd {
 		double rate = this.new Metadata().getInfo().rate;
 		// 输出使用GPU编码codec，输入不确定，使用cpu
 		cmdMap.replace(FFmpegEnum.codec, "-c:v h264_qsv");
-		cmdMap.replace(FFmpegEnum.bitrate, String.format("-b:v %sK", (int) rate));
+		if (rate != 0) {
+			cmdMap.replace(FFmpegEnum.bitrate, String.format("-b:v %sK", (int) rate));
+		}
 		return this;
 	}
 
