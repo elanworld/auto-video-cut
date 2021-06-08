@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.alan.common.text.FileSuffixEnum;
 import com.alan.common.util.Output;
 import com.alan.common.util.RunCmd;
 import com.alan.common.util.StringBox;
@@ -37,13 +38,13 @@ public class FFmpegCmd extends RunCmd {
 		super.run();
 	}
 
-	public void initCmdList() {
+	protected void initCmdList() {
 		cmdList.addAll(Arrays.asList(FFmpegEnum.ffmpeg, FFmpegEnum.overwrite, FFmpegEnum.hw, FFmpegEnum.decode,
 				FFmpegEnum.time_off, FFmpegEnum.input, FFmpegEnum.crop, FFmpegEnum.filter_complex, FFmpegEnum.diyLine,
 				FFmpegEnum.map, FFmpegEnum.codec, FFmpegEnum.bitrate, FFmpegEnum.output));
 	}
 
-	public void initCmdMap() {
+	protected void initCmdMap() {
 		for (FFmpegEnum cmd : cmdList) {
 			cmdMap.put(cmd, null);
 		}
@@ -149,16 +150,10 @@ public class FFmpegCmd extends RunCmd {
 	}
 
 	public Boolean isVideo(String file) {
-		ArrayList<String> types = new ArrayList<>(Arrays.asList("mp4", "avi", "mkv"));
 		if (file == null) {
 			return false;
 		}
-		for (String type : types) {
-			if (file.matches(".*" + type + ".*")) {
-				return true;
-			}
-		}
-		return false;
+		return Arrays.stream(FileSuffixEnum.video()).anyMatch(name -> file.matches(".*" + name + ".*"));
 	}
 
 	public boolean isWait() {
