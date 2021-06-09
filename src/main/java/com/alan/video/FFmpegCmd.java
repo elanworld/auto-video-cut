@@ -16,6 +16,8 @@ public class FFmpegCmd extends RunCmd {
 	List<FFmpegEnum> cmdList = new ArrayList<>();
 	LinkedHashMap<FFmpegEnum, String> cmdMap = new LinkedHashMap<>();
 	List<String> inputFiles = new ArrayList<>();
+	// 后处理任务列表
+	List<Runnable> runTasks = new ArrayList<>();
 
 	FiltersSet filtersSet = null;
 	SpecialFormat specialFormat = null;
@@ -28,6 +30,8 @@ public class FFmpegCmd extends RunCmd {
 	@Override
 	public void run() {
 		feasible(); // check all setting if possible
+		runTasks.forEach(Runnable::run);
+		runTasks.clear();
 		ArrayList<String> cmds = new ArrayList<>();
 		for (String cmd : cmdMap.values()) {
 			if (cmd != null) {
@@ -35,13 +39,15 @@ public class FFmpegCmd extends RunCmd {
 			}
 		}
 		this.command = String.join(" ", cmds);
+		Output.setFilePrint(false);
 		super.run();
 	}
 
 	protected void initCmdList() {
-		cmdList.addAll(Arrays.asList(FFmpegEnum.ffmpeg, FFmpegEnum.concat, FFmpegEnum.overwrite, FFmpegEnum.hw,
+		cmdList.addAll(Arrays.asList(FFmpegEnum.ffmpeg, FFmpegEnum.format, FFmpegEnum.overwrite, FFmpegEnum.hw,
 				FFmpegEnum.decode, FFmpegEnum.time_off, FFmpegEnum.input, FFmpegEnum.crop, FFmpegEnum.filter_complex,
-				FFmpegEnum.diyLine, FFmpegEnum.map, FFmpegEnum.codec, FFmpegEnum.bitrate, FFmpegEnum.output));
+				FFmpegEnum.diyLine, FFmpegEnum.map, FFmpegEnum.codec, FFmpegEnum.out_format, FFmpegEnum.bitrate,
+				FFmpegEnum.output));
 	}
 
 	protected void initCmdMap() {
@@ -82,18 +88,24 @@ public class FFmpegCmd extends RunCmd {
 		return this;
 	}
 
+	public FFmpegCmd setCodecCopy() {
+		return setCodec("copy");
+	}
+
 	/**
 	 * set intel qsv codec in order to transform faster than cpu compute
 	 *
 	 * @return
 	 */
 	public FFmpegCmd setCodecQSV() {
-		double rate = this.new Metadata().getInfo().rate;
-		// 输出使用GPU编码codec，输入不确定，使用cpu
-		cmdMap.replace(FFmpegEnum.codec, "-c:v h264_qsv");
-		if (rate != 0) {
-			cmdMap.replace(FFmpegEnum.bitrate, String.format("-b:v %sK", (int) rate));
-		}
+		this.runTasks.add(() -> {
+			double rate = this.new Metadata().getInfo().rate;
+			// 输出使用GPU编码codec，输入不确定，使用cpu
+			cmdMap.replace(FFmpegEnum.codec, "-c:v h264_qsv");
+			if (rate != 0) {
+				cmdMap.replace(FFmpegEnum.bitrate, String.format("-b:v %sK", (int) rate));
+			}
+		});
 		return this;
 	}
 
@@ -313,7 +325,7 @@ public class FFmpegCmd extends RunCmd {
 
 		public FiltersSet setSubtitle(String file) {
 			file = file.replace("\\", "/").replace(":", "\\:");
-			filters.add(String.format("subtitles=filename='%s':force_style='Fontsize=%s'", file, 24));
+			filters.add(String.format("subtitles=filename='%s':force_style='Fontsize=%s'", file, 20));
 			return this;
 		}
 	}

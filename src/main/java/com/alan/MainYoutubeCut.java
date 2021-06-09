@@ -41,17 +41,18 @@ public class MainYoutubeCut {
 					continue;
 				}
 				String ns = FilesBox.outFile(rs, "new");
-				String tmp = new File(m).getName();
+				String tmp = new File(m).getName() + ".ts";
 				String out = new File(SystemPath.PRODUCE.getPath(), new File(m).getName()).toString();
 				sub.init(rs);
 				sub.forEach(n -> {
-					if (!StringBox.checkChinese(String.join(",", n.getText()))) {
+					if (!StringBox.checkChinese(String.join(",", n.getText()))
+							&& !String.join(",", n.getText()).equals("")) {
 						String str = BaiduTranslator.translate(String.join(",", n.getText()), true);
 						n.getText().add(str);
 					}
 				});
 				sub.write(sub.getAll(), ns);
-				fFmpegCmd.setInput(m).setOutput(tmp).setCodecQSV().getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
+				fFmpegCmd.setCodecQSV().setInput(m).setOutput(tmp).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
 				fFmpegCmd.clear();
 				fFmpegCmd.concat(Arrays.asList(SystemPath.LIKE.getPath(), tmp, SystemPath.LIKE.getPath()), out);
 				File output = new File(out);
