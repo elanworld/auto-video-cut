@@ -339,11 +339,15 @@ public class FFmpegCmd extends RunCmd {
 		}
 	}
 
-	private class Metadata {
-		double width, height;
-		double duration;
-		double rate;
-		double meanVolume;
+	public Metadata getMetadata() {
+		return this.new Metadata().getInfo();
+	}
+
+	public class Metadata {
+		public double width, height;
+		public double duration;
+		public double rate;
+		public double meanVolume;
 
 		private Metadata() {
 			if (cmdMap.get(FFmpegEnum.input) == null) {

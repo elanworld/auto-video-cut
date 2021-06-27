@@ -27,9 +27,6 @@ import com.alan.video.FFmpegFuture;
  */
 public class MainYoutubeCut {
 	public static void main(String[] args) {
-		FFmpegFuture fFmpegCmd = new FFmpegFuture();
-		fFmpegCmd.setTimeout(Duration.ofMinutes(30));
-		SubtitleBox sub = new SubtitleBox();
 		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, FileSuffixEnum.video());
 		List<String> srt = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
 		Output.print("find video:", mp4);
@@ -40,29 +37,47 @@ public class MainYoutubeCut {
 				if (rs == null) {
 					continue;
 				}
-				String ns = FilesBox.outFile(rs, "new");
-				String tmp = new File(m).getName() + ".ts";
-				String out = new File(SystemPath.PRODUCE.getPath(), new File(m).getName()).toString();
-				sub.init(rs);
-				sub.forEach(n -> {
-					if (!StringBox.checkChinese(String.join(",", n.getText()))
-							&& !String.join(",", n.getText()).equals("")) {
-						String str = BaiduTranslator.translate(String.join(",", n.getText()), true);
-						n.getText().add(str);
-					}
-				});
-				sub.write(sub.getAll(), ns);
-				fFmpegCmd.setCodecQSV().setInput(m).setOutput(tmp).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
-				fFmpegCmd.clear();
-				fFmpegCmd.concat(Arrays.asList(SystemPath.LIKE.getPath(), tmp, SystemPath.LIKE.getPath()), out);
-				File output = new File(out);
-				if (output.exists()) {
-					new File(tmp).delete();
-					FilesBox.move(m, FilesBox.outDir(m, "used"));
-					FilesBox.move(rs, FilesBox.outDir(m, "used"));
-					new File(ns).delete();
-				}
+				cut(m, rs);
 			}
+		}
+	}
+
+	private static void cut(String movie, String srt) {
+		FFmpegFuture fFmpegCmd = new FFmpegFuture();
+		fFmpegCmd.setTimeout(Duration.ofMinutes(30));
+		SubtitleBox sub = new SubtitleBox();
+		String ns = FilesBox.outFile(srt, "new");
+		String tmp = new File(movie).getName() + ".ts";
+		String out = new File(SystemPath.PRODUCE.getPath(), new File(movie).getName()).toString();
+		sub.init(srt);
+		sub.forEach(n -> {
+			if (!StringBox.checkChinese(String.join(",", n.getText())) && !String.join(",", n.getText()).equals("")) {
+				String str = BaiduTranslator.translate(String.join(",", n.getText()), true);
+				n.getText().add(str);
+			}
+		});
+		sub.write(sub.getAll(), ns);
+		fFmpegCmd.setCodecQSV().setInput(movie).setOutput(tmp).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
+		fFmpegCmd.clear();
+		double duration = fFmpegCmd.setInput(tmp).getMetadata().duration;
+		for (double i = 0; i < duration; i += 180) {
+			double end = i + 180;
+			if (end > duration) {
+				end = duration;
+			}
+			String tempTs = "temp.ts";
+			fFmpegCmd.setInput(tmp).setOutput(tempTs).setCodecCopy().setTime(i, end).run();
+			fFmpegCmd.clear();
+			fFmpegCmd.concat(Arrays.asList(SystemPath.LIKE.getPath(), tempTs, SystemPath.LIKE.getPath()),
+					FilesBox.outDirFile(out));
+			new File(tempTs).delete();
+		}
+		File output = new File(out);
+		if (output.exists()) {
+			new File(tmp).delete();
+			FilesBox.move(movie, FilesBox.outDir(movie, "used"));
+			FilesBox.move(srt, FilesBox.outDir(movie, "used"));
+			new File(ns).delete();
 		}
 	}
 }
