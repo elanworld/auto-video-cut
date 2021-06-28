@@ -25,6 +25,11 @@
     </repositories>
     <dependencies>
         <dependency>
+            <groupId>com.alan</groupId>
+            <artifactId>auto-web</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13</version>
@@ -41,15 +46,6 @@
             <artifactId>org.json</artifactId>
             <version>chargebee-1.0</version>
         </dependency>
-        <!--        讯飞语音识别本地包-->
-        <!--<dependency>
-            <groupId>com.iflytek.msp.lfasr</groupId>
-            <artifactId>lfasr-sdk</artifactId>
-            <version>3.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/lfasr-sdk-3.0.0.jar</systemPath>
-        </dependency>-->
-        <!--讯飞第三方依赖包-->
         <!--fastjson-->
         <dependency>
             <groupId>com.alibaba</groupId>

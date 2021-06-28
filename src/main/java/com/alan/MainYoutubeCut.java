@@ -8,11 +8,18 @@ package com.alan;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.alan.auto.dao.DownHistoryDao;
+import com.alan.auto.entity.DownHistory;
+import com.alan.auto.system.DownTypeEnum;
+import com.alan.common.data.DataBox;
 import com.alan.common.system.SystemPath;
-import com.alan.common.text.FileSuffixEnum;
 import com.alan.common.text.SubtitleBox;
 import com.alan.common.util.FilesBox;
 import com.alan.common.util.Output;
@@ -27,22 +34,37 @@ import com.alan.video.FFmpegFuture;
  */
 public class MainYoutubeCut {
 	public static void main(String[] args) {
-		List<String> mp4 = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, FileSuffixEnum.video());
-		List<String> srt = FilesBox.directoryListFilter(SystemPath.YOUTUBE.getPath(), false, "srt");
-		Output.print("find video:", mp4);
-		for (String m : mp4) {
-			String rs;
-			for (String s : srt) {
-				rs = FilesBox.renameIfLike(m, s, 0.5);
-				if (rs == null) {
-					continue;
-				}
-				cut(m, rs);
+		DownHistoryDao historyDao = DataBox.getMapper(DownHistoryDao.class);
+		DownHistory downHistory = new DownHistory();
+		downHistory.setUsed(false);
+		List<DownHistory> downHistories = historyDao.queryAll(downHistory);
+		Output.print("find video:", downHistories);
+		downHistories.forEach(movie -> downHistories.forEach(subtitle -> {
+			if (StringUtils.equals(movie.getTitle(), subtitle.getTitle())
+					&& StringUtils.equals(movie.getType(), DownTypeEnum.movie.name())
+					&& DownTypeEnum.isSubtitle(subtitle.getType())) {
+				List<String> outs = cut(movie.getFilePath(), subtitle.getFilePath());
+				movie.setUsed(true);
+				subtitle.setUsed(true);
+				historyDao.update(movie);
+				historyDao.update(subtitle);
+				outs.forEach(file -> {
+					DownHistory product = new DownHistory();
+					product.setType(DownTypeEnum.product.name());
+					product.setTitle(movie.getTitle());
+					product.setUrl(movie.getUrl());
+					product.setFilePath(file);
+					product.setFileExists(true);
+					product.setUsed(false);
+					product.setLastUpdateDate(new Date());
+					historyDao.insert(product);
+				});
 			}
-		}
+		}));
+
 	}
 
-	private static void cut(String movie, String srt) {
+	private static List<String> cut(String movie, String srt) {
 		FFmpegFuture fFmpegCmd = new FFmpegFuture();
 		fFmpegCmd.setTimeout(Duration.ofMinutes(30));
 		SubtitleBox sub = new SubtitleBox();
@@ -59,6 +81,7 @@ public class MainYoutubeCut {
 		sub.write(sub.getAll(), ns);
 		fFmpegCmd.setCodecQSV().setInput(movie).setOutput(tmp).getFiltersSet().setSubtitle(ns).toFFmpegCmd().run();
 		fFmpegCmd.clear();
+		List<String> outs = new ArrayList<>();
 		double duration = fFmpegCmd.setInput(tmp).getMetadata().duration;
 		for (double i = 0; i < duration; i += 180) {
 			double end = i + 180;
@@ -68,16 +91,13 @@ public class MainYoutubeCut {
 			String tempTs = "temp.ts";
 			fFmpegCmd.setInput(tmp).setOutput(tempTs).setCodecCopy().setTime(i, end).run();
 			fFmpegCmd.clear();
-			fFmpegCmd.concat(Arrays.asList(SystemPath.LIKE.getPath(), tempTs, SystemPath.LIKE.getPath()),
-					FilesBox.outDirFile(out));
+			String output = FilesBox.outFile(out);
+			fFmpegCmd.concat(Arrays.asList(SystemPath.LIKE.getPath(), tempTs, SystemPath.LIKE.getPath()), output);
+			outs.add(output);
 			new File(tempTs).delete();
 		}
-		File output = new File(out);
-		if (output.exists()) {
-			new File(tmp).delete();
-			FilesBox.move(movie, FilesBox.outDir(movie, "used"));
-			FilesBox.move(srt, FilesBox.outDir(movie, "used"));
-			new File(ns).delete();
-		}
+		new File(tmp).delete();
+		new File(ns).delete();
+		return outs;
 	}
 }
