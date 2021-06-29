@@ -19,10 +19,11 @@ import org.opencv.videoio.VideoWriter;
 import org.opencv.videoio.Videoio;
 
 import com.alan.ai.AiBaseTarget;
+import com.alan.common.text.SubtitleBody;
+import com.alan.common.text.SubtitleBox;
 import com.alan.common.util.FilesBox;
 import com.alan.common.util.Output;
 import com.alan.photo.ImagePHash;
-import com.alan.common.text.SubtitleBox;
 
 public class OpenCvBox {
 	static {
@@ -142,7 +143,7 @@ public class OpenCvBox {
 			return false;
 		}
 		subtitleBox.init(srt);
-		List<String> byFilter = subtitleBox.getByFilter(true, false, true, start, end, -start);
+		List<SubtitleBody> byFilter = subtitleBox.getByFilter(true, false, true, start, end, -start);
 		return subtitleBox.write(byFilter, srtOut);
 	}
 
