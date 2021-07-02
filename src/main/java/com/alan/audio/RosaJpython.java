@@ -7,6 +7,9 @@ import org.python.util.PythonInterpreter;
 
 import com.alan.common.util.Output;
 
+/**
+ * 使用非本机python环境，无法import已安装包
+ */
 @Deprecated
 public class RosaJpython {
 	public static void main(String[] args) throws Exception {
