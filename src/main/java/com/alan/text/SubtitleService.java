@@ -9,7 +9,7 @@ package com.alan.text;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alan.auto.entity.SubtitleVo;
+import com.alan.common.data.main.entity.SubtitleVo;
 import com.alan.auto.service.DataQueryService;
 
 /**

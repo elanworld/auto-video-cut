@@ -10,8 +10,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alan.auto.dao.DownHistoryDao;
-import com.alan.auto.entity.SubtitleVo;
+import com.alan.common.data.main.dao.DownHistoryDao;
+import com.alan.common.data.main.entity.SubtitleVo;
 import com.alan.common.data.DataBox;
 import com.alan.common.util.FilesBox;
 import com.alan.common.util.StringBox;

@@ -15,8 +15,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.alan.auto.dao.DownHistoryDao;
-import com.alan.auto.entity.DownHistory;
+import com.alan.common.data.main.dao.DownHistoryDao;
+import com.alan.common.data.main.entity.DownHistory;
 import com.alan.auto.system.DownTypeEnum;
 import com.alan.common.data.DataBox;
 import com.alan.common.system.SystemPath;
